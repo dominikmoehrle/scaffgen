@@ -11,22 +11,22 @@ export default function Hero() {
       <div className="custom-screen pt-28 text-gray-600">
         <div className="mx-auto max-w-4xl space-y-5 text-center">
           <h1 className="mx-auto text-4xl font-extrabold text-gray-800 sm:text-6xl">
-            Generate your next AI QR Code in seconds
+            Generate your next AI Scaffolds in seconds
           </h1>
           <p className="mx-auto max-w-xl">
-            QRGPT makes it simple for you to generate cool looking AI QR codes
-            in seconds, completely for free.
+            ScaffGen makes it simple for you to generate AI Scaffolds for your
+            classroom in seconds, completely for free.
           </p>
           <div className="flex items-center justify-center gap-x-3 text-sm font-medium">
             <NavLink
               href="/start"
               className="bg-gray-800 text-white hover:bg-gray-600 active:bg-gray-900 "
             >
-              Generate your QR Code
+              Generate your Scaffolds
             </NavLink>
             <NavLink
               target="_blank"
-              href="https://github.com/Nutlope/qrGPT"
+              href="https://github.com/dominikmoehrle/scaffgen"
               className="border text-gray-700 hover:bg-gray-50"
               scroll={false}
             >

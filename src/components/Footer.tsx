@@ -7,17 +7,24 @@ const Footer = () => (
         <p className="text-gray-600">
           Created by{" "}
           <a
+            href="https://twitter.com/dominik_moehrle"
+            className="transition hover:underline"
+          >
+            Dominik
+          </a>
+          {""},{" "}
+          <a
             href="https://twitter.com/nutlope"
             className="transition hover:underline"
           >
-            Hassan
+            Ryan
           </a>{" "}
           and{" "}
           <a
             href="https://twitter.com/kevinhou22"
             className="transition hover:underline"
           >
-            Kevin
+            Rizwaan
           </a>
           .
         </p>

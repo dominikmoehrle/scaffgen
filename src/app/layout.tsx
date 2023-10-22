@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
-let title = "QrGPT - QR Code Generator";
-let description = "Generate your AI QR Code in seconds";
+let title = "ScaffGen - AI Scaffold Generator";
+let description = "Generate your AI Scaffolds in seconds";
 let url = "https://www.qrgpt.io";
 let ogimage = "https://www.qrgpt.io/og-image.png";
 let sitename = "qrGPT.io";

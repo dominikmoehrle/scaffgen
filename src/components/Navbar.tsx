@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import NavLink from './NavLink';
-import Image from 'next/image';
-import { usePathname, useSearchParams } from 'next/navigation';
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import NavLink from "./NavLink";
+import Image from "next/image";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const Navbar = () => {
   const [state, setState] = useState(false);
 
   const navigation = [
     // { title: 'Testimonials', path: '#testimonials' },
-    { title: 'Homepage', path: '/' },
+    { title: "Homepage", path: "/" },
   ];
 
   const pathname = usePathname();
@@ -20,7 +20,7 @@ const Navbar = () => {
   useEffect(() => {
     // Add closing the navbar menu when navigating
     const handleState = () => {
-      document.body.classList.remove('overflow-hidden');
+      document.body.classList.remove("overflow-hidden");
       setState(false);
     };
 
@@ -29,21 +29,21 @@ const Navbar = () => {
 
   const handleNavMenu = () => {
     setState(!state);
-    document.body.classList.toggle('overflow-hidden');
+    document.body.classList.toggle("overflow-hidden");
   };
 
   return (
     <header>
       <nav
-        className={`bg-white w-full md:static md:text-sm ${
-          state ? 'fixed z-10 h-full' : ''
+        className={`w-full bg-white md:static md:text-sm ${
+          state ? "fixed z-10 h-full" : ""
         }`}
       >
-        <div className="custom-screen items-center mx-auto md:flex">
-          <div className="flex items-center justify-between py-3 md:py-5 md:block">
+        <div className="custom-screen mx-auto items-center md:flex">
+          <div className="flex items-center justify-between py-3 md:block md:py-5">
             <Link href="/" className="flex items-center gap-3">
               <Image src="/box.svg" alt="logo" width={30} height={30} />
-              <div className="font-bold text-lg">QrGPT</div>
+              <div className="text-lg font-bold">ScaffGen</div>
             </Link>
             <div className="md:hidden">
               <button
@@ -72,7 +72,7 @@ const Navbar = () => {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-6 h-6"
+                    className="h-6 w-6"
                   >
                     <path
                       strokeLinecap="round"
@@ -85,11 +85,11 @@ const Navbar = () => {
             </div>
           </div>
           <div
-            className={`flex-1 pb-3 mt-8 md:pb-0 md:mt-0 md:block ${
-              state ? '' : 'hidden'
+            className={`mt-8 flex-1 pb-3 md:mt-0 md:block md:pb-0 ${
+              state ? "" : "hidden"
             }`}
           >
-            <ul className="text-gray-700 justify-end items-center space-y-6 md:flex md:space-x-6 md:space-y-0 md:text-gray-600 md:font-medium">
+            <ul className="items-center justify-end space-y-6 text-gray-700 md:flex md:space-x-6 md:space-y-0 md:font-medium md:text-gray-600">
               {navigation.map((item, idx) => {
                 return (
                   <li key={idx} className="duration-150 hover:text-gray-900">
@@ -102,9 +102,9 @@ const Navbar = () => {
               <li>
                 <NavLink
                   href="/start"
-                  className="block font-medium text-sm text-white bg-gray-800 hover:bg-gray-600 active:bg-gray-900 md:inline"
+                  className="block bg-gray-800 text-sm font-medium text-white hover:bg-gray-600 active:bg-gray-900 md:inline"
                 >
-                  Generate your QR Code
+                  Generate your Scaffolds
                 </NavLink>
               </li>
             </ul>

@@ -102,22 +102,22 @@ const Body = ({
 
   //       //const data = await response.json();
 
-  //     //   va.track("Generated QR Code", {
-  //     //     prompt: values.prompt,
-  //     //   });
+  //       //   va.track("Generated QR Code", {
+  //       //     prompt: values.prompt,
+  //       //   });
 
-  //     //   router.push(`/start/${data.id}`);
-  //     // } catch (error) {
-  //     //   va.track("Failed to generate", {
-  //     //     prompt: values.prompt,
-  //     //   });
-  //     //   if (error instanceof Error) {
-  //     //     setError(error);
-  //     //   }
-  //     // } finally {
-  //     //   setIsLoading(false);
-  //     // }
-  //  // },
+  //       router.push(`/start/${data.id}`);
+  //     } catch (error) {
+  //       va.track("Failed to generate", {
+  //         prompt: values.prompt,
+  //       });
+  //       if (error instanceof Error) {
+  //         setError(error);
+  //       }
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   },
   //   [router],
   // );
 
@@ -125,26 +125,10 @@ const Body = ({
     <div className="mb-0 flex w-full flex-col items-center justify-center p-4 sm:mb-28 lg:p-0">
       <div className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 md:gap-12">
         <div className="col-span-1">
-          <h1 className="mb-10 text-3xl font-bold">Generate a QR Code</h1>
+          <h1 className="mb-10 text-3xl font-bold">Generate your Scaffolds</h1>
           <Form {...form}>
             <form>
               <div className="flex flex-col gap-4">
-                <FormField
-                  control={form.control}
-                  name="url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="roomgpt.io" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        This is what your QR code will link to.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="prompt"
@@ -184,7 +168,15 @@ const Body = ({
                   disabled={isLoading}
                   className="mx-auto inline-flex
                  w-full max-w-[200px] justify-center"
-                ></Button>
+                >
+                  {isLoading ? (
+                    <LoadingDots color="white" />
+                  ) : false ? (
+                    "✨ Regenerate"
+                  ) : (
+                    "Generate"
+                  )}
+                </Button>
 
                 {error && (
                   <Alert variant="destructive">

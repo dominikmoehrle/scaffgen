@@ -6,13 +6,13 @@ const CTA = () => (
           className="text-3xl font-semibold text-gray-800 sm:text-4xl"
           id="oss"
         >
-          QrGPT is Proudly Open Source
+          ScaffGen is Proudly Open Source
         </h2>
         <p className="mt-3 text-gray-600">
           Our source code is available on GitHub.
         </p>
         <a
-          href="https://github.com/Nutlope/qrGPT"
+          href="https://github.com/dominikmoehrle/scaffgen"
           className="mt-4 inline-flex max-w-[200px] items-center justify-center gap-2 rounded-lg bg-gray-800 px-4 py-2.5 text-center text-sm font-medium text-white duration-150 hover:bg-gray-600 active:bg-gray-900"
         >
           <svg
