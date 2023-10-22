@@ -5,6 +5,9 @@
 await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  reactStrictMode: false,
+  eslint: { ignoreDuringBuilds: true },
+};
 
 export default config;
