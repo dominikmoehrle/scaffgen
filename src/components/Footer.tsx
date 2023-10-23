@@ -28,16 +28,6 @@ const Footer = () => (
           </a>
           .
         </p>
-        <div className="flex items-center gap-x-6 text-gray-400">
-          <a
-            className="flex gap-1 rounded-md border border-slate-200 px-3 py-1 tracking-tight transition hover:scale-105"
-            href="https://v0.dev/"
-            target="_blank"
-          >
-            <span className="text-gray-500">Built with</span>
-            <V0Logo width={25} />
-          </a>
-        </div>
       </div>
     </div>
   </footer>

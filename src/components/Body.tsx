@@ -1,5 +1,7 @@
 "use client";
 
+import * as React from "react";
+
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,11 +26,99 @@ import { PromptSuggestion } from "@/components/PromptSuggestion";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "react-hot-toast";
 
+import { Check, ChevronsUpDown } from "lucide-react";
+
+import { cn } from "@/utils/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@src/components/ui/command.tsx";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "src/src/components/ui/popover.tsx";
+
+const frameworks = [
+  {
+    value: "next.js",
+    label: "Next.js",
+  },
+  {
+    value: "sveltekit",
+    label: "SvelteKit",
+  },
+  {
+    value: "nuxt.js",
+    label: "Nuxt.js",
+  },
+  {
+    value: "remix",
+    label: "Remix",
+  },
+  {
+    value: "astro",
+    label: "Astro",
+  },
+];
+
+export function ComboboxDemo() {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-[200px] justify-between"
+        >
+          {value
+            ? frameworks.find((framework) => framework.value === value)?.label
+            : "Select Grade Level..."}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0">
+        <Command>
+          <CommandInput placeholder="Search framework..." />
+          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandGroup>
+            {frameworks.map((framework) => (
+              <CommandItem
+                key={framework.value}
+                value={framework.value}
+                onSelect={(currentValue) => {
+                  setValue(currentValue === value ? "" : currentValue);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === framework.value ? "opacity-100" : "opacity-0",
+                  )}
+                />
+                {framework.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 const promptSuggestions = [
-  "A city view with clouds",
-  "A beautiful glacier",
-  "A forest overlooking a mountain",
-  "A saharan desert",
+  "Students with dyslexia",
+  "Students with cognitive disabilities",
+  "Students who are more advanced",
+  "Students who are more visual learners",
 ];
 
 const generateFormSchema = z.object({
@@ -123,7 +213,7 @@ const Body = ({
 
   return (
     <div className="mb-0 flex w-full flex-col items-center justify-center p-4 sm:mb-28 lg:p-0">
-      <div className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 md:gap-12">
+      <div className="mt-10 grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-1 md:gap-12">
         <div className="col-span-1">
           <h1 className="mb-10 text-3xl font-bold">Generate your Scaffolds</h1>
           <Form {...form}>
@@ -151,7 +241,11 @@ const Body = ({
                   )}
                 />
                 <div className="my-2">
-                  <p className="mb-3 text-sm font-medium">Prompt suggestions</p>
+                  <p className="mb-3 text-sm font-medium">Grade</p>
+                  <ComboboxDemo />
+                </div>
+                <div className="my-2">
+                  <p className="mb-3 text-sm font-medium">Special Needs</p>
                   <div className="grid grid-cols-1 gap-3 text-center text-sm text-gray-500 sm:grid-cols-2">
                     {promptSuggestions.map((suggestion) => (
                       <PromptSuggestion
@@ -177,7 +271,6 @@ const Body = ({
                     "Generate"
                   )}
                 </Button>
-
                 {error && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
@@ -189,7 +282,7 @@ const Body = ({
             </form>
           </Form>
         </div>
-        <div className="col-span-1">
+        {/* <div className="col-span-1">
           {submittedURL && (
             <>
               <h1 className="mb-5 mt-5 text-left text-3xl font-bold sm:mb-5 sm:mt-0 sm:text-center">
@@ -205,7 +298,7 @@ const Body = ({
               </div>
             </>
           )}
-        </div>
+        </div> */}
       </div>
       <Toaster />
     </div>
