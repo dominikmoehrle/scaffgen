@@ -41,6 +41,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "src/src/components/ui/popover.tsx";
+import { QrGenerateRequest } from "~/utils/service";
 
 const frameworks = [
   {
@@ -166,50 +167,88 @@ const Body = ({
     [form],
   );
 
-  // const handleSubmit = useCallback(
-  //   async (values: GenerateFormValues) => {
-  //     setIsLoading(true);
-  //     setResponse(null);
-  //     setSubmittedURL(values.url);
+  const handleSubmit = useCallback(
+    async (values: GenerateFormValues) => {
+      console.log("in the handleSubmit now");
+      setIsLoading(true);
+      //setResponse(null);
+      setSubmittedURL(values.url);
 
-  //     try {
-  //       const request: QrGenerateRequest = {
-  //         url: values.url,
-  //         prompt: values.prompt,
-  //       };
-  //       const response = await fetch("/api/generate", {
-  //         method: "POST",
-  //         body: JSON.stringify(request),
-  //       });
+      // try {
+      //   const request: QrGenerateRequest = {
+      //     url: values.url,
+      //     prompt: values.prompt,
+      //   };
+      //   const response = await fetch("/api/generate", {
+      //     method: "POST",
+      //     body: JSON.stringify(request),
+      //   });
 
-  //       // Handle API errors.
-  //       if (!response.ok || response.status !== 200) {
-  //         const text = await response.text();
-  //         throw new Error(
-  //           `Failed to generate QR code: ${response.status}, ${text}`,
-  //         );
-  //       }
+      //   // Handle API errors.
+      //   if (!response.ok || response.status !== 200) {
+      //     const text = await response.text();
+      //     throw new Error(
+      //       `Failed to generate QR code: ${response.status}, ${text}`,
+      //     );
+      //   }
 
-  //       //const data = await response.json();
+      //   //const data = await response.json();
 
-  //       //   va.track("Generated QR Code", {
-  //       //     prompt: values.prompt,
-  //       //   });
+      //   //   va.track("Generated QR Code", {
+      //   //     prompt: values.prompt,
+      //   //   });
 
-  //       router.push(`/start/${data.id}`);
-  //     } catch (error) {
-  //       va.track("Failed to generate", {
-  //         prompt: values.prompt,
-  //       });
-  //       if (error instanceof Error) {
-  //         setError(error);
-  //       }
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   },
-  //   [router],
-  // );
+      //   router.push(`/start/${data.id}`);
+      // } catch (error) {
+      //   va.track("Failed to generate", {
+      //     prompt: values.prompt,
+      //   });
+      //   if (error instanceof Error) {
+      //     setError(error);
+      //   }
+      // } finally {
+      //   setIsLoading(false);
+      // }
+      console.log("trying to send it aways");
+      try {
+        const request: QrGenerateRequest = {
+          url: values.url,
+          prompt: values.prompt,
+        };
+        console.log("Sending off the request now");
+        console.log(JSON.stringify(request));
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          body: JSON.stringify(request),
+        });
+
+        // Handle API errors.
+        if (!response.ok || response.status !== 200) {
+          const text = await response.text();
+          throw new Error(
+            `Failed to generate QR code: ${response.status}, ${text}`,
+          );
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const data = await response.json();
+
+        // va.track("Generated QR Code", {
+        //   prompt: values.prompt,
+        // });
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        router.push(`/start/${data.id}`);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [router],
+  );
 
   return (
     <div className="mb-0 flex w-full flex-col items-center justify-center p-4 sm:mb-28 lg:p-0">
@@ -217,11 +256,12 @@ const Body = ({
         <div className="col-span-1">
           <h1 className="mb-10 text-3xl font-bold">Generate your Scaffolds</h1>
           <Form {...form}>
-            <form>
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
               <div className="flex flex-col gap-4">
+                {/* First form field */}
                 <FormField
                   control={form.control}
-                  name="prompt"
+                  name="url"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Prompt</FormLabel>
@@ -240,10 +280,12 @@ const Body = ({
                     </FormItem>
                   )}
                 />
-                <div className="my-2">
+                {/* Second form field */}
+                {/* <div className="my-2">
                   <p className="mb-3 text-sm font-medium">Grade</p>
                   <ComboboxDemo />
-                </div>
+                </div> */}
+                {/* Third form field */}
                 <div className="my-2">
                   <p className="mb-3 text-sm font-medium">Special Needs</p>
                   <div className="grid grid-cols-1 gap-3 text-center text-sm text-gray-500 sm:grid-cols-2">

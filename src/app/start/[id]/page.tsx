@@ -1,4 +1,4 @@
-//import { kv } from "@vercel/kv";
+import { kv } from "@vercel/kv";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Body from "@/components/Body";
@@ -72,12 +72,8 @@ export default Page;
 //     notFound();
 //   }
 //   return (
-//     <Body
-//       prompt={data.prompt}
-//       imageUrl={data.image}
-//       redirectUrl={data.website_url}
-//       modelLatency={Number(data.model_latency)}
-//       id={params.id}
-//     />
+//     <div>
+//       Hello, world! {data.prompt} {data.image} {params.id}
+//     </div>
 //   );
 // }
