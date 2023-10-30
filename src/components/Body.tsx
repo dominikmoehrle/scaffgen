@@ -211,28 +211,25 @@ const Body = ({
       // }
       console.log("trying to send it aways");
       try {
-        const request: QrGenerateRequest = {
-          url: values.url,
-          prompt: values.prompt,
-        };
+        // request
         console.log("Sending off the request now");
-        console.log(JSON.stringify(request));
+        // console.log(JSON.stringify(request));
         const response = await fetch("/api/generate", {
           method: "POST",
-          body: JSON.stringify(request),
+          body: JSON.stringify({text: "Linear Algebra"}),
         });
 
         // Handle API errors.
-        if (!response.ok || response.status !== 200) {
+        /* if (!response.ok || response.status !== 200) {
           const text = await response.text();
           throw new Error(
             `Failed to generate QR code: ${response.status}, ${text}`,
           );
-        }
+        }*/
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data = await response.json();
-
+        // console.log(data);
         // va.track("Generated QR Code", {
         //   prompt: values.prompt,
         // });
