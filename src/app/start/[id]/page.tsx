@@ -1,26 +1,83 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { kv } from "@vercel/kv";
-import { notFound } from "next/navigation";
-import { Metadata } from "next";
-import Body from "@/components/Body";
 
-import React from "react";
+export default function Page({ params }: { params: { id: string } }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const Page: React.FC = () => {
-  return <div>Hello, world!</div>;
-};
+  useEffect(() => {
+    const fetchData = async () => {
+      if (params.id) {
+        // Make sure params.id is not undefined
+        try {
+          const scaffoldData = await getAllKv(params.id);
+          if (scaffoldData) {
+            setData(scaffoldData);
+          } else {
+            // Handle no data found
+          }
+        } catch (error) {
+          console.error("Error fetching scaffold data:", error);
+          // Handle error
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-export default Page;
+    fetchData();
+  }, [params.id]); // Depend on `id` so it re-runs when `id` changes
 
-// async function getAllKv(id: string) {
-//   const data = await kv.hgetall<{
-//     prompt: string;
-//     image?: string;
-//     website_url?: string;
-//     model_latency?: string;
-//   }>(id);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-//   return data;
-// }
+  if (!data) {
+    return (
+      <div>
+        <strong>No scaffold data found for</strong> {params.id}.
+      </div>
+    );
+  }
+
+  // Render your scaffold data here
+  return (
+    <div>
+      <h1>Scaffold Data</h1>
+      {/* Render your data here */}
+      <div>
+        <strong>Lesson Objective:</strong> {data.lessonObjective}
+      </div>
+      <div>
+        <strong>Grade Level:</strong> {data.grade}
+      </div>
+      <div>
+        <strong>Special Needs:</strong> {data.needs}
+      </div>
+      <div>
+        <strong>Warmups:</strong>
+        <ul>
+          {data.gen_content.warmups.map((warmup) => (
+            <li key={warmup.id}>{warmup.content}</li>
+          ))}
+        </ul>
+      </div>
+      {/* Repeat for choiceboards and misconceptions */}
+    </div>
+  );
+}
+
+async function getAllKv(id: string) {
+  const data = await kv.hgetall<{
+    lessonObjective: string;
+    gradeLevel: string;
+    specialNeeds: string;
+  }>(id);
+
+  return data;
+}
 
 // export async function generateMetadata({
 //   params,

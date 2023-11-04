@@ -146,6 +146,9 @@ const Body = ({
   const [error, setError] = useState<Error | null>(null);
   //const [response, setResponse] = useState<QrGenerateResponse | null>(null);
   const [submittedURL, setSubmittedURL] = useState<string | null>(null);
+  const [lessonObjective, setLessonObjective] = useState("10th Grade");
+  const [gradeLevel, setGradeLevel] = useState("10th Grade");
+  const [needs, setNeeds] = useState("Dyslexia");
 
   const router = useRouter();
 
@@ -173,42 +176,6 @@ const Body = ({
       setIsLoading(true);
       //setResponse(null);
       setSubmittedURL(values.url);
-
-      // try {
-      //   const request: QrGenerateRequest = {
-      //     url: values.url,
-      //     prompt: values.prompt,
-      //   };
-      //   const response = await fetch("/api/generate", {
-      //     method: "POST",
-      //     body: JSON.stringify(request),
-      //   });
-
-      //   // Handle API errors.
-      //   if (!response.ok || response.status !== 200) {
-      //     const text = await response.text();
-      //     throw new Error(
-      //       `Failed to generate QR code: ${response.status}, ${text}`,
-      //     );
-      //   }
-
-      //   //const data = await response.json();
-
-      //   //   va.track("Generated QR Code", {
-      //   //     prompt: values.prompt,
-      //   //   });
-
-      //   router.push(`/start/${data.id}`);
-      // } catch (error) {
-      //   va.track("Failed to generate", {
-      //     prompt: values.prompt,
-      //   });
-      //   if (error instanceof Error) {
-      //     setError(error);
-      //   }
-      // } finally {
-      //   setIsLoading(false);
-      // }
       console.log("trying to send it aways");
       try {
         // request
@@ -216,16 +183,16 @@ const Body = ({
         // console.log(JSON.stringify(request));
         const response = await fetch("/api/generate", {
           method: "POST",
-          body: JSON.stringify({text: "Linear Algebra"}),
+          body: JSON.stringify({ lessonObjective, gradeLevel, needs }),
         });
 
         // Handle API errors.
-        /* if (!response.ok || response.status !== 200) {
+        if (!response.ok || response.status !== 200) {
           const text = await response.text();
           throw new Error(
             `Failed to generate QR code: ${response.status}, ${text}`,
           );
-        }*/
+        }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data = await response.json();
@@ -233,6 +200,9 @@ const Body = ({
         // va.track("Generated QR Code", {
         //   prompt: values.prompt,
         // });
+
+        console.log("Successfully sent it away");
+        console.log("Object ID: " + data.id);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         router.push(`/start/${data.id}`);

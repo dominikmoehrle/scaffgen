@@ -1,12 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { replicateClient } from "@/utils/ReplicateClient";
-import { QrGenerateRequest, QrGenerateResponse } from "@/utils/service";
 import { NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { kv } from "@vercel/kv";
-import { put } from "@vercel/blob";
 import { nanoid } from "@/utils/utils";
-import OpenAI from 'openai'
+import OpenAI from "openai";
 
 /**
  * Validates a request object.
@@ -25,6 +23,13 @@ const validateRequest = (request) => {
   }
 };
 
+interface Scaffold {
+  id: string;
+  content: string;
+  status: "ignored" | "accepted" | "bad";
+}
+
+//LATER IDEA MEASURE HOW MUCH PROGRESS FROM PROMPT TO MODIFICATION PASSES
 
 // const ratelimit = new Ratelimit({
 //   redis: kv,
@@ -32,17 +37,37 @@ const validateRequest = (request) => {
 //   limiter: Ratelimit.slidingWindow(20, "1 d"),
 // });
 
+/* Output of GPT -> HAS to look like this
+{
+  "warmups": ["warmup suggestion 1", "warmup suggestion 2", "warmup suggestion 3"],
+  "choiceboards": ["choiceboard suggestion 1", "choiceboard suggestion 2", "choiceboard suggestion 3"],
+  "misconceptions": ["misconception 1", "misconception 2", "misconception 3"]
+}
+*/
+// Helper function to create Scaffold objects from an array of strings
+const createScaffoldsFromArray = (array: string[]): Scaffold[] => {
+  return array.map((content) => ({
+    id: nanoid(),
+    content: content, //.trim()??
+    status: "ignored", // default status
+  }));
+};
+
 export async function POST(request: NextRequest) {
-  console.log("Everything created on server side!!!!!!");
+  console.log("Processing request on server side...");
   // const reqBody = (await request.json()) as QrGenerateRequest;
 
   // const ip = request.ip ?? "127.0.0.1";
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   // const { success } = await ratelimit.limit(ip);
   // const success = true;
-  const reqBody = (await request.json())
-  const prompt = reqBody.text;
-  console.log(prompt)
+  const reqBody = await request.json();
+
+  const lessonObjective = reqBody.lessonObjective as string;
+  const gradeLevel = reqBody.gradeLevel as string;
+  const specialNeeds = reqBody.needs as string;
+
+  console.log(lessonObjective, gradeLevel, specialNeeds);
 
   console.log("Everything created on server side!!!!!!");
 
@@ -52,53 +77,62 @@ export async function POST(request: NextRequest) {
     });
   }*/
 
-  try {
-    validateRequest(reqBody);
-  } catch (e) {
-    if (e instanceof Error) {
-      return new Response(e.message, { status: 400 });
-    }
-  }
+  // try {
+  //   validateRequest(reqBody);
+  // } catch (e) {
+  //   if (e instanceof Error) {
+  //     return new Response(e.message, { status: 400 });
+  //   }
+  // }
 
-  let messages_body = [
+  const messages_body = [
     {
       role: "system",
       content:
-        "Please generate a math word problem for the following math topic.",
+        "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays that represent each scaffold type and are labelled as warmups, choiceboards and misconceptions. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!",
     },
   ];
 
-  messages_body.push({ role: "user", content: prompt })
-
+  // Call OpenAI API to generate scaffold contents
   const gptResponse = await openai.chat.completions.create({
-    // messages: messages,
     messages: messages_body,
     model: "gpt-3.5-turbo",
   });
 
-  console.log("Finished Running GPT")
+  console.log("Finished Running GPT");
   const botMessage = gptResponse.choices[0].message.content;
 
-
   console.log(botMessage);
+
+  // Parse the JSON response to get the scaffold contents
+  const scaffoldData = JSON.parse(botMessage);
+  const warmups = createScaffoldsFromArray(scaffoldData.warmups);
+  const choiceboards = createScaffoldsFromArray(scaffoldData.choiceboards);
+  const misconceptions = createScaffoldsFromArray(scaffoldData.misconceptions);
+
+  const promptID = nanoid();
+
   messages_body.push({ role: "assistant", content: botMessage });
 
-  const scaff_prompt = "Please provide key concepts students may need to be able to solve this problem";
+  const scaff_prompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
   messages_body.push({ role: "user", content: scaff_prompt });
 
-  const gptResponseScaff = await openai.chat.completions.create({
-    // messages: messages,
-    messages: messages_body,
-    model: "gpt-3.5-turbo",
-  });
-
-  const botMessageScaff = gptResponseScaff.choices[0].message.content;
-
-  console.log(botMessageScaff);
-
-  const id = nanoid();
   const startTime = performance.now();
 
+  // Prepare the data to be saved in Vercel KV
+  const kvData = {
+    lessonObjective: lessonObjective,
+    grade: gradeLevel, // Assuming these fields are part of the request
+    needs: specialNeeds,
+    gen_content: {
+      warmups,
+      choiceboards,
+      misconceptions,
+    },
+  };
+
+  // Save the scaffold data to Vercel KV
+  await kv.hset(promptID, kvData);
 
   // const imageUrl = await replicateClient.generateQrCode({
   //   url: reqBody.url,
@@ -110,38 +144,23 @@ export async function POST(request: NextRequest) {
   //     "Longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, blurry",
   // });
 
-  const url = "";
+  // const endTime = performance.now();
+  // const durationMS = endTime - startTime;
+  // console.log("Everything created on server side!!!!!!");
 
-  const endTime = performance.now();
-  const durationMS = endTime - startTime;
-  console.log("Everything created on server side!!!!!!");
+  // At the end of the POST function
+  console.log("Data saved to KV and exiting...");
 
-  // convert output to a blob object
-  //const file = await fetch(imageUrl).then((res) => res.blob());
+  // Prepare the response object with the ID
+  const response = {
+    id: promptID, // Provide the ID so the client can use it to fetch the data later
+  };
 
-  // upload & store in Vercel Blob
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-  //const { url } = await put(`${id}.png`, file, { access: "public" });
-
-  // await kv.hset(id, {
-  //   prompt: reqBody.prompt,
-  //   image: url,
-  //   website_url: reqBody.url,
-  //   model_latency: Math.round(durationMS),
-  // });
-
-  /* const response: QrGenerateResponse = {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    image_url: url,
-    model_latency_ms: Math.round(durationMS),
-    id: id,
-  };*/
-
-  const response = gptResponseScaff
-
-  console.log("EXITING...")
-
+  // Return the response as JSON, including the ID
   return new Response(JSON.stringify(response), {
     status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 }

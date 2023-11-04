@@ -4,6 +4,7 @@ import Image from "next/image";
 import NavLink from "./NavLink";
 
 const heroImages = ["/1.png", "/6.png", "/3.png", "/4.png", "/5.png", "/2.png"];
+const lessons = ["/lesson1.png", "/lesson2.png", "/lesson3.png"];
 
 export default function Hero() {
   return (
@@ -11,7 +12,7 @@ export default function Hero() {
       <div className="custom-screen pt-28 text-gray-600">
         <div className="mx-auto max-w-4xl space-y-5 text-center">
           <h1 className="mx-auto text-4xl font-extrabold text-gray-800 sm:text-6xl">
-            Generate your next AI Scaffolds in seconds
+            Generate Classroom Scaffolds in seconds
           </h1>
           <p className="mx-auto max-w-xl">
             ScaffGen makes it simple for you to generate AI Scaffolds for your
@@ -34,7 +35,7 @@ export default function Hero() {
             </NavLink>
           </div>
           <div className="grid grid-cols-2 gap-4 pt-10 sm:grid-cols-3">
-            {heroImages.map((image, idx) => (
+            {lessons.map((image, idx) => (
               <Image
                 key={idx}
                 alt="image"
