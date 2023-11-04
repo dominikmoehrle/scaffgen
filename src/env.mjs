@@ -23,7 +23,7 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     DISCORD_CLIENT_ID: z.string(),
     DISCORD_CLIENT_SECRET: z.string(),
-
+    DIRECT_URL: z.string().url(),
     OPENAI_KEY: z.string(),
     SUPABASE_KEY: z.string(),
   },
@@ -50,6 +50,7 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     OPENAI_KEY: process.env.OPENAI_KEY,
     SUPABASE_KEY: process.env.SUPABASE_KEY,
+    DIRECT_URL: process.env.DIRECT_URL,
   },
 
   /**
