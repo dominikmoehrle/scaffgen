@@ -8,10 +8,6 @@ await import("./src/env.mjs");
 const config = {
   reactStrictMode: false,
   eslint: { ignoreDuringBuilds: true },
-  env: {
-    // @ts-ignore
-    SUPABASE_KEY: process.env.SUPABASE_KEY,
-  },
 };
 
 export default config;
