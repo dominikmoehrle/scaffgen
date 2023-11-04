@@ -105,6 +105,8 @@ export async function POST(request: NextRequest) {
     },
   ];
 
+  //
+
   // Call OpenAI API to generate scaffold contents
   const gptResponse = await openai.chat.completions.create({
     messages: messages_body,
