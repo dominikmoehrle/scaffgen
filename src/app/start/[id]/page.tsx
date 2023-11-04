@@ -7,32 +7,58 @@ import { createClient } from "@supabase/supabase-js";
 
 import supabase from "~/utils/supabaseClient";
 
+type Scaffold = {
+  id: string;
+  content: string;
+  status: "IGNORED" | "ACCEPTED" | "BAD";
+};
+
+type Scaffolds = {
+  warmups: Scaffold[];
+  choiceboards: Scaffold[];
+  misconceptions: Scaffold[];
+};
+
+type PromptData = {
+  id: string;
+  prompt_content: string;
+  objective: string;
+  grade: string;
+  needs: string;
+  scaffolds: Scaffolds;
+};
+
 export default function Page({ params }: { params: { id: string } }) {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<PromptData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (params.id) {
-        // Make sure params.id is not undefined
-        try {
-          //const scaffoldData = await getAllKv(params.id);
-          const { data, error } = await supabase.from("prompt").select();
-          if (data) {
-            setData(data);
-          } else {
-            // Handle no data found
-          }
-        } catch (error) {
-          console.error("Error fetching scaffold data:", error);
-          // Handle error
-        } finally {
-          setLoading(false);
+  const fetchData = async () => {
+    if (params.id) {
+      // Make sure params.id is not undefined
+      try {
+        //const scaffoldData = await getAllKv(params.id);
+        const { data: fetchedData, error } = await supabase
+          .from("prompt")
+          .select()
+          .eq("id", params.id);
+        if (fetchedData && fetchedData.length > 0) {
+          setData(fetchedData[0] as PromptData);
+        } else {
+          // Handle no data found
         }
+      } catch (error) {
+        console.error("Error fetching scaffold data:", error);
+        // Handle error
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    fetchData().catch((error) => {
+      console.error("Error in fetchData:", error);
+    });
   }, [params.id]); // Depend on `id` so it re-runs when `id` changes
 
   if (!data) {
@@ -49,7 +75,7 @@ export default function Page({ params }: { params: { id: string } }) {
       <h1>Scaffold Data</h1>
       {/* Render your data here */}
       <div>
-        <strong>Lesson Objective:</strong> {data.lessonObjective}
+        <strong>Lesson Objective:</strong> {data.objective}
       </div>
       <div>
         <strong>Grade Level:</strong> {data.grade}
@@ -60,7 +86,7 @@ export default function Page({ params }: { params: { id: string } }) {
       <div>
         <strong>Warmups:</strong>
         <ul>
-          {data.gen_content.warmups.map((warmup) => (
+          {data?.scaffolds.warmups.map((warmup) => (
             <li key={warmup.id}>{warmup.content}</li>
           ))}
         </ul>
