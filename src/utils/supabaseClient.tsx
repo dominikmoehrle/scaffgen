@@ -18,3 +18,5 @@ console.log("supabaseAnonKey is: " + supabaseAnonKey);
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default supabase;
+
+//Client for Database
