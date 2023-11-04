@@ -104,7 +104,6 @@ export async function POST(request: NextRequest) {
       content: GPTInstruction,
     },
   ];
-  //hello
 
   // Call OpenAI API to generate scaffold contents
   const gptResponse = await openai.chat.completions.create({
@@ -119,17 +118,13 @@ export async function POST(request: NextRequest) {
 
   // Parse the JSON response to get the scaffold contents
   const scaffoldData = JSON.parse(botMessage) as {
-    warmups: any[];
-    choiceboards: any[];
-    misconceptions: any[];
+    warmups: string[];
+    choiceboards: string[];
+    misconceptions: string[];
   };
-  const warmups = createScaffoldsFromArray(scaffoldData.warmups as string[]);
-  const choiceboards = createScaffoldsFromArray(
-    scaffoldData.choiceboards as string[],
-  );
-  const misconceptions = createScaffoldsFromArray(
-    scaffoldData.misconceptions as string[],
-  );
+  const warmups = createScaffoldsFromArray(scaffoldData.warmups);
+  const choiceboards = createScaffoldsFromArray(scaffoldData.choiceboards);
+  const misconceptions = createScaffoldsFromArray(scaffoldData.misconceptions);
 
   const promptID = nanoid();
 
