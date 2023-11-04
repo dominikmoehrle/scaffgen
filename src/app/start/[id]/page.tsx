@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { kv } from "@vercel/kv";
 
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = "https://ffyzcipgdiaoofpfwlvz.supabase.co";
+// eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export default function Page({ params }: { params: { id: string } }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,9 +19,10 @@ export default function Page({ params }: { params: { id: string } }) {
       if (params.id) {
         // Make sure params.id is not undefined
         try {
-          const scaffoldData = await getAllKv(params.id);
-          if (scaffoldData) {
-            setData(scaffoldData);
+          //const scaffoldData = await getAllKv(params.id);
+          const { data, error } = await supabase.from("prompt").select();
+          if (data) {
+            setData(data);
           } else {
             // Handle no data found
           }
@@ -29,10 +37,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
     fetchData();
   }, [params.id]); // Depend on `id` so it re-runs when `id` changes
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   if (!data) {
     return (

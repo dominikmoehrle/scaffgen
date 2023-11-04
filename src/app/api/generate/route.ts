@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { NextRequest } from "next/server";
@@ -5,6 +6,15 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { kv } from "@vercel/kv";
 import { nanoid } from "@/utils/utils";
 import OpenAI from "openai";
+
+// Create a single supabase client for interacting with your database
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = "https://ffyzcipgdiaoofpfwlvz.supabase.co";
+// eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
  * Validates a request object.
@@ -14,10 +24,10 @@ import OpenAI from "openai";
  */
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_KEY, // defaults to process.env["OPENAI_API_KEY"]
+  apiKey: process.env.OPENAI_KEY ?? "", // defaults to process.env["OPENAI_API_KEY"]
 });
 
-const validateRequest = (request) => {
+const validateRequest = (request: { text?: string }) => {
   if (!request.text) {
     throw new Error("URL is required");
   }
@@ -84,12 +94,15 @@ export async function POST(request: NextRequest) {
   //     return new Response(e.message, { status: 400 });
   //   }
   // }
+  const GPTInstruction =
+    "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays that represent each scaffold type and are labelled as warmups, choiceboards and misconceptions. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!";
+  const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
+  const contentToStore = GPTInstruction + "\n" + userPrompt;
 
   const messages_body = [
     {
       role: "system",
-      content:
-        "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays that represent each scaffold type and are labelled as warmups, choiceboards and misconceptions. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!",
+      content: GPTInstruction,
     },
   ];
 
@@ -114,25 +127,34 @@ export async function POST(request: NextRequest) {
 
   messages_body.push({ role: "assistant", content: botMessage });
 
-  const scaff_prompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
+  const scaff_prompt = userPrompt;
   messages_body.push({ role: "user", content: scaff_prompt });
 
   const startTime = performance.now();
 
-  // Prepare the data to be saved in Vercel KV
-  const kvData = {
-    lessonObjective: lessonObjective,
-    grade: gradeLevel, // Assuming these fields are part of the request
-    needs: specialNeeds,
-    gen_content: {
-      warmups,
-      choiceboards,
-      misconceptions,
-    },
-  };
+  // // Prepare the data to be saved in Vercel KV
+  // const kvData = {
+  //   lessonObjective: lessonObjective,
+  //   grade: gradeLevel, // Assuming these fields are part of the request
+  //   needs: specialNeeds,
+  //   gen_content: {
+  //     warmups,
+  //     choiceboards,
+  //     misconceptions,
+  //   },
+  // };
 
-  // Save the scaffold data to Vercel KV
-  await kv.hset(promptID, kvData);
+  // // Save the scaffold data to Vercel KV
+  // await kv.hset(promptID, kvData);
+
+  const { error } = await supabase.from("prompt").insert({
+    id: promptID,
+    promptContent: contentToStore,
+    grade: gradeLevel,
+    needs: specialNeeds,
+    objective: lessonObjective,
+    scaffolds: botMessage,
+  });
 
   // const imageUrl = await replicateClient.generateQrCode({
   //   url: reqBody.url,
@@ -149,7 +171,7 @@ export async function POST(request: NextRequest) {
   // console.log("Everything created on server side!!!!!!");
 
   // At the end of the POST function
-  console.log("Data saved to KV and exiting...");
+  console.log("Data saved to Supabase and exiting...");
 
   // Prepare the response object with the ID
   const response = {

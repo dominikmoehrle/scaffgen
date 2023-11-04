@@ -29,6 +29,7 @@ model Post {
 model Prompt {
   id            String     @id @default(cuid())
   prompt_content String
+  objective     String
   grade         String
   needs         String
   scaffolds     Json
