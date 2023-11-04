@@ -8,3 +8,5 @@ export type QrCodeControlNetRequest = {
 };
 
 export type QrCodeControlNetResponse = [string];
+
+//End;
