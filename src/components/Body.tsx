@@ -181,6 +181,7 @@ const Body = ({
         // request
         console.log("Sending off the request now");
         // console.log(JSON.stringify(request));
+        
         const response = await fetch("/api/generate", {
           method: "POST",
           body: JSON.stringify({ lessonObjective, gradeLevel, needs }),

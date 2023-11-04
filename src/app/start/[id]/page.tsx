@@ -5,10 +5,7 @@ import { kv } from "@vercel/kv";
 
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = "https://ffyzcipgdiaoofpfwlvz.supabase.co";
-// eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import supabase from "~/utils/supabaseClient";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [data, setData] = useState(null);

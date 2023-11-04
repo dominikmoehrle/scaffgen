@@ -28,6 +28,9 @@ export const env = createEnv({
     KV_REST_API_TOKEN: z.string(),
     KV_REST_API_READ_ONLY_TOKEN: z.string(),
     BLOB_READ_WRITE_TOKEN: z.string(),
+    OPENAI_KEY: z.string(),
+    SUPABASE_ANON_KEY: z.string(),
+    SUPABASE_KEY: z.string(),
   },
 
   /**
@@ -56,6 +59,9 @@ export const env = createEnv({
     KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
     KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
+    OPENAI_KEY: process.env.OPENAI_KEY,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+    SUPABASE_KEY: process.env.SUPABASE_KEY,
   },
 
   /**

@@ -6,15 +6,9 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { kv } from "@vercel/kv";
 import { nanoid } from "@/utils/utils";
 import OpenAI from "openai";
+import supabase from "~/utils/supabaseClient";
 
 // Create a single supabase client for interacting with your database
-
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = "https://ffyzcipgdiaoofpfwlvz.supabase.co";
-// eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
  * Validates a request object.
@@ -81,6 +75,11 @@ export async function POST(request: NextRequest) {
 
   console.log("Everything created on server side!!!!!!");
 
+  type Message = {
+    role: "system" | "user" | "assistant";
+    content: string;
+  };
+
   /*if (!success && process.env.NODE_ENV !== "development") {
     return new Response("Too many requests. Please try again after 24h.", {
       status: 429,
@@ -99,7 +98,7 @@ export async function POST(request: NextRequest) {
   const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
   const contentToStore = GPTInstruction + "\n" + userPrompt;
 
-  const messages_body = [
+  const messages_body: Message[] = [
     {
       role: "system",
       content: GPTInstruction,
@@ -113,15 +112,23 @@ export async function POST(request: NextRequest) {
   });
 
   console.log("Finished Running GPT");
-  const botMessage = gptResponse.choices[0].message.content;
+  const botMessage = gptResponse.choices[0]?.message?.content ?? "";
 
   console.log(botMessage);
 
   // Parse the JSON response to get the scaffold contents
-  const scaffoldData = JSON.parse(botMessage);
-  const warmups = createScaffoldsFromArray(scaffoldData.warmups);
-  const choiceboards = createScaffoldsFromArray(scaffoldData.choiceboards);
-  const misconceptions = createScaffoldsFromArray(scaffoldData.misconceptions);
+  const scaffoldData = JSON.parse(botMessage) as {
+    warmups: any[];
+    choiceboards: any[];
+    misconceptions: any[];
+  };
+  const warmups = createScaffoldsFromArray(scaffoldData.warmups as string[]);
+  const choiceboards = createScaffoldsFromArray(
+    scaffoldData.choiceboards as string[],
+  );
+  const misconceptions = createScaffoldsFromArray(
+    scaffoldData.misconceptions as string[],
+  );
 
   const promptID = nanoid();
 
@@ -155,6 +162,11 @@ export async function POST(request: NextRequest) {
     objective: lessonObjective,
     scaffolds: botMessage,
   });
+
+  if (error) {
+    console.log("ERROR");
+    console.log(error.message);
+  }
 
   // const imageUrl = await replicateClient.generateQrCode({
   //   url: reqBody.url,
