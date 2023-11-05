@@ -38,7 +38,7 @@ export default function Page({ params }: { params: { id: string } }) {
       try {
         //const scaffoldData = await getAllKv(params.id);
         const { data: fetchedData, error } = await supabase
-          .from("prompt")
+          .from("Prompt")
           .select()
           .eq("id", params.id);
         if (fetchedData && fetchedData.length > 0) {
@@ -91,19 +91,25 @@ export default function Page({ params }: { params: { id: string } }) {
           ))}
         </ul>
       </div>
+      <div>
+        <strong>Choiceboards:</strong>
+        <ul>
+          {data?.scaffolds.choiceboards.map((choiceboard) => (
+            <li key={choiceboard.id}>{choiceboard.content}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <strong>Misconceptions:</strong>
+        <ul>
+          {data?.scaffolds.warmups.map((misconception) => (
+            <li key={misconception.id}>{misconception.content}</li>
+          ))}
+        </ul>
+      </div>
       {/* Repeat for choiceboards and misconceptions */}
     </div>
   );
-}
-
-async function getAllKv(id: string) {
-  const data = await kv.hgetall<{
-    lessonObjective: string;
-    gradeLevel: string;
-    specialNeeds: string;
-  }>(id);
-
-  return data;
 }
 
 // export async function generateMetadata({

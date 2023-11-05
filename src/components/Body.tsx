@@ -25,6 +25,7 @@ import LoadingDots from "@/components/ui/loadingdots";
 import { PromptSuggestion } from "@/components/PromptSuggestion";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "react-hot-toast";
+import { Controller } from "react-hook-form";
 
 import { Check, ChevronsUpDown } from "lucide-react";
 
@@ -41,34 +42,79 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "src/src/components/ui/popover.tsx";
-import { QrGenerateRequest } from "~/utils/service";
 
-const frameworks = [
+const gradeLevels = [
   {
-    value: "next.js",
-    label: "Next.js",
+    value: "1st grade",
+    label: "1st Grade",
   },
   {
-    value: "sveltekit",
-    label: "SvelteKit",
+    value: "2nd grade",
+    label: "2nd Grade",
   },
   {
-    value: "nuxt.js",
-    label: "Nuxt.js",
+    value: "3rd grade",
+    label: "3rd Grade",
   },
   {
-    value: "remix",
-    label: "Remix",
+    value: "4th grade",
+    label: "4th Grade",
   },
   {
-    value: "astro",
-    label: "Astro",
+    value: "5th grade",
+    label: "5th Grade",
+  },
+  {
+    value: "6th grade",
+    label: "6th Grade",
+  },
+  {
+    value: "7th grade",
+    label: "7th Grade",
+  },
+  {
+    value: "8th grade",
+    label: "8th Grade",
+  },
+  {
+    value: "9th grade",
+    label: "9th Grade",
+  },
+  {
+    value: "10th grade",
+    label: "10th Grade",
+  },
+  {
+    value: "11th grade",
+    label: "11th Grade",
+  },
+  {
+    value: "12th grade",
+    label: "12th Grade",
   },
 ];
 
-export function ComboboxDemo() {
+type ComboboxDemoProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+export function ComboboxDemo({ value, onChange }: ComboboxDemoProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+
+  console.log("value:", value);
+  console.log(
+    "found gradeLevel:",
+    gradeLevels.find((gradeLevel) => gradeLevel.value === value),
+  );
+
+  gradeLevels.forEach((gradeLevel) => {
+    if (gradeLevel.value === value) {
+      console.log("Match found:", gradeLevel);
+    } else {
+      console.log("No match:", gradeLevel.value, value);
+    }
+  });
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -80,32 +126,33 @@ export function ComboboxDemo() {
           className="w-[200px] justify-between"
         >
           {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+            ? gradeLevels.find((gradeLevel) => gradeLevel.value === value)
+                ?.label
             : "Select Grade Level..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandInput placeholder="Search grade level..." />
+          <CommandEmpty>No gradeLevel found.</CommandEmpty>
           <CommandGroup>
-            {frameworks.map((framework) => (
+            {gradeLevels.map((gradeLevel) => (
               <CommandItem
-                key={framework.value}
-                value={framework.value}
+                key={gradeLevel.value}
+                value={gradeLevel.value}
                 onSelect={(currentValue) => {
-                  setValue(currentValue === value ? "" : currentValue);
+                  onChange(currentValue === value ? "" : currentValue);
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === framework.value ? "opacity-100" : "opacity-0",
+                    value === gradeLevel.value ? "opacity-100" : "opacity-0",
                   )}
                 />
-                {framework.label}
+                {gradeLevel.label}
               </CommandItem>
             ))}
           </CommandGroup>
@@ -123,8 +170,9 @@ const promptSuggestions = [
 ];
 
 const generateFormSchema = z.object({
-  url: z.string().min(1),
-  prompt: z.string().min(3).max(160),
+  lessonObjective: z.string().min(1),
+  gradeLevel: z.string().min(1),
+  specialNeeds: z.string(),
 });
 
 type GenerateFormValues = z.infer<typeof generateFormSchema>;
@@ -145,10 +193,6 @@ const Body = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   //const [response, setResponse] = useState<QrGenerateResponse | null>(null);
-  const [submittedURL, setSubmittedURL] = useState<string | null>(null);
-  const [lessonObjective, setLessonObjective] = useState("10th Grade");
-  const [gradeLevel, setGradeLevel] = useState("10th Grade");
-  const [needs, setNeeds] = useState("Dyslexia");
 
   const router = useRouter();
 
@@ -158,40 +202,37 @@ const Body = ({
 
     // Set default values so that the form inputs are controlled components.
     defaultValues: {
-      url: "",
-      prompt: "",
+      lessonObjective: "",
+      gradeLevel: "",
+      specialNeeds: "",
     },
   });
-
-  const handleSuggestionClick = useCallback(
-    (suggestion: string) => {
-      form.setValue("prompt", suggestion);
-    },
-    [form],
-  );
 
   const handleSubmit = useCallback(
     async (values: GenerateFormValues) => {
       console.log("in the handleSubmit now");
       setIsLoading(true);
       //setResponse(null);
-      setSubmittedURL(values.url);
       console.log("trying to send it aways");
       try {
         // request
         console.log("Sending off the request now");
         // console.log(JSON.stringify(request));
-        
+
         const response = await fetch("/api/generate", {
           method: "POST",
-          body: JSON.stringify({ lessonObjective, gradeLevel, needs }),
+          body: JSON.stringify({
+            lessonObjective: values.lessonObjective,
+            gradeLevel: values.gradeLevel,
+            specialNeeds: values.specialNeeds,
+          }),
         });
 
         // Handle API errors.
         if (!response.ok || response.status !== 200) {
           const text = await response.text();
           throw new Error(
-            `Failed to generate QR code: ${response.status}, ${text}`,
+            `Failed to generate lesson scaffolds: ${response.status}, ${text}`,
           );
         }
 
@@ -229,7 +270,7 @@ const Body = ({
                 {/* First form field */}
                 <FormField
                   control={form.control}
-                  name="url"
+                  name="lessonObjective"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Prompt</FormLabel>
@@ -248,24 +289,40 @@ const Body = ({
                     </FormItem>
                   )}
                 />
-                {/* Second form field */}
-                {/* <div className="my-2">
+
+                <div className="my-2">
                   <p className="mb-3 text-sm font-medium">Grade</p>
-                  <ComboboxDemo />
-                </div> */}
-                {/* Third form field */}
+                  <Controller
+                    name="gradeLevel"
+                    control={form.control}
+                    render={({ field: { onChange, value } }) => (
+                      <ComboboxDemo value={value} onChange={onChange} />
+                    )}
+                  />
+                </div>
                 <div className="my-2">
                   <p className="mb-3 text-sm font-medium">Special Needs</p>
-                  <div className="grid grid-cols-1 gap-3 text-center text-sm text-gray-500 sm:grid-cols-2">
-                    {promptSuggestions.map((suggestion) => (
-                      <PromptSuggestion
-                        key={suggestion}
-                        suggestion={suggestion}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        isLoading={isLoading}
-                      />
-                    ))}
-                  </div>
+                  <Controller
+                    name="specialNeeds"
+                    control={form.control}
+                    render={({ field: { onChange, value } }) => (
+                      <div className="grid grid-cols-1 gap-3 text-center text-sm text-gray-500 sm:grid-cols-2">
+                        {promptSuggestions.map((suggestion) => (
+                          <PromptSuggestion
+                            key={suggestion}
+                            suggestion={suggestion}
+                            onClick={() => onChange(suggestion)}
+                            className={
+                              value === suggestion
+                                ? " bg-[rgb(15,23,42)] text-white hover:bg-[rgb(15,23,42)]" // Styles for selected suggestion
+                                : " bg-white text-black hover:bg-gray-200" // Styles for unselected suggestion
+                            }
+                            isLoading={isLoading}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  />
                 </div>
                 <Button
                   type="submit"
@@ -292,23 +349,6 @@ const Body = ({
             </form>
           </Form>
         </div>
-        {/* <div className="col-span-1">
-          {submittedURL && (
-            <>
-              <h1 className="mb-5 mt-5 text-left text-3xl font-bold sm:mb-5 sm:mt-0 sm:text-center">
-                Your QR Code
-              </h1>
-              <div>
-                <div className="relative flex h-auto flex-col items-center justify-center"></div>
-
-                <div className="mt-4 flex justify-center gap-5">
-                  <Button>Download</Button>
-                  <Button>✂️ Share</Button>
-                </div>
-              </div>
-            </>
-          )}
-        </div> */}
       </div>
       <Toaster />
     </div>

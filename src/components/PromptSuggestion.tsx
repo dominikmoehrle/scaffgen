@@ -1,7 +1,8 @@
 type PromptSuggestionProps = {
   suggestion: string;
   onClick: () => void;
-  isLoading?: boolean;
+  isLoading: boolean;
+  className?: string; // Add this line to allow a className prop
 };
 
 /**
@@ -10,15 +11,23 @@ type PromptSuggestionProps = {
 export const PromptSuggestion: React.FC<PromptSuggestionProps> = ({
   suggestion,
   onClick,
-  isLoading = false,
+  isLoading,
+  className,
 }) => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onClick();
+  };
+
   return (
     <button
-      onClick={() => onClick()}
+      type="button"
+      className={`rounded-2xl border p-2 ${
+        !isLoading ? "cursor-pointer" : "cursor-not-allowed"
+      } transition hover:bg-gray-100 ${className}`}
+      onClick={handleClick} // Use handleClick instead of onClick
       disabled={isLoading}
-      className={`border p-2 rounded-2xl ${
-        !isLoading ? 'cursor-pointer' : 'cursor-not-allowed'
-      } hover:bg-gray-100 transition`}
     >
       {suggestion}
     </button>

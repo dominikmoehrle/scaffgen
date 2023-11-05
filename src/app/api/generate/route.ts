@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
   const lessonObjective = reqBody.lessonObjective as string;
   const gradeLevel = reqBody.gradeLevel as string;
-  const specialNeeds = reqBody.needs as string;
+  const specialNeeds = reqBody.specialNeeds as string;
 
   console.log(lessonObjective, gradeLevel, specialNeeds);
 
@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
   //     return new Response(e.message, { status: 400 });
   //   }
   // }
+
   const GPTInstruction =
     "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays that represent each scaffold type and are labelled as warmups, choiceboards and misconceptions. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!";
   const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
@@ -137,28 +138,17 @@ export async function POST(request: NextRequest) {
 
   const startTime = performance.now();
 
-  // // Prepare the data to be saved in Vercel KV
-  // const kvData = {
-  //   lessonObjective: lessonObjective,
-  //   grade: gradeLevel, // Assuming these fields are part of the request
-  //   needs: specialNeeds,
-  //   gen_content: {
-  //     warmups,
-  //     choiceboards,
-  //     misconceptions,
-  //   },
-  // };
-
-  // // Save the scaffold data to Vercel KV
-  // await kv.hset(promptID, kvData);
-
-  const { error } = await supabase.from("prompt").insert({
+  const { error } = await supabase.from("Prompt").insert({
     id: promptID,
-    promptContent: contentToStore,
+    prompt_content: contentToStore,
     grade: gradeLevel,
     needs: specialNeeds,
     objective: lessonObjective,
-    scaffolds: botMessage,
+    scaffolds: {
+      warmups: warmups,
+      choiceboards: choiceboards,
+      misconceptions: misconceptions,
+    },
   });
 
   if (error) {
