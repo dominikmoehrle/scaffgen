@@ -101,10 +101,10 @@ const Navbar = () => {
               })}
               <li>
                 <NavLink
-                  href="/start"
+                  href="/library"
                   className="block bg-gray-800 text-sm font-medium text-white hover:bg-gray-600 active:bg-gray-900 md:inline"
                 >
-                  Generate your Scaffolds
+                  Scaffold Library
                 </NavLink>
               </li>
             </ul>
