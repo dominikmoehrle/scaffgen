@@ -274,13 +274,13 @@ const Body = ({
                       <FormLabel>Prompt</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="A city view with clouds"
+                          placeholder="A lesson objective you would like to generate scaffolds for"
                           className="resize-none"
                           {...field}
                         />
                       </FormControl>
                       <FormDescription className="">
-                        This is what the image in your QR code will look like.
+                        Feel free to be very precise or more broad.
                       </FormDescription>
 
                       <FormMessage />

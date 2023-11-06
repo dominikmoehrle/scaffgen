@@ -12,6 +12,7 @@ const Navbar = () => {
   const navigation = [
     // { title: 'Testimonials', path: '#testimonials' },
     { title: "Homepage", path: "/" },
+    { title: "Scaffold Library", path: "/library" },
   ];
 
   const pathname = usePathname();
@@ -101,10 +102,10 @@ const Navbar = () => {
               })}
               <li>
                 <NavLink
-                  href="/library"
+                  href="/start"
                   className="block bg-gray-800 text-sm font-medium text-white hover:bg-gray-600 active:bg-gray-900 md:inline"
                 >
-                  Scaffold Library
+                  Generate your Scaffolds
                 </NavLink>
               </li>
             </ul>
