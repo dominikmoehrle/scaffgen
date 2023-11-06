@@ -103,14 +103,6 @@ type ComboboxDemoProps = {
 export function ComboboxDemo({ value, onChange }: ComboboxDemoProps) {
   const [open, setOpen] = React.useState(false);
 
-  gradeLevels.forEach((gradeLevel) => {
-    if (gradeLevel.value === value) {
-      console.log("Match found:", gradeLevel);
-    } else {
-      console.log("No match:", gradeLevel.value, value);
-    }
-  });
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -245,8 +237,8 @@ const Body = ({
         //   values.specialNeeds,
         // );
 
-        console.log("Successfully sent it away");
-        console.log("Object ID: " + data.id);
+        console.log("Successfully reived the data");
+        console.log("Data is: " + data);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         router.push(`/start/${data.id}`);
