@@ -1,6 +1,6 @@
 // components/PromptCard.tsx
 import React from "react";
-import type { Scaffold, Scaffolds } from "../pages/library";
+import { type Scaffolds } from "~/utils/types";
 
 type PromptCardProps = {
   id: string;

@@ -9,4 +9,25 @@ export type QrCodeControlNetRequest = {
 
 export type QrCodeControlNetResponse = [string];
 
+export type Scaffold = {
+  id: string;
+  content: string;
+  status: "IGNORED" | "ACCEPTED" | "BAD";
+};
+
+export type Scaffolds = {
+  warmups: Scaffold[];
+  choiceboards: Scaffold[];
+  misconceptions: Scaffold[];
+};
+
+export type PromptData = {
+  id: string;
+  prompt_content: string;
+  objective: string;
+  grade: string;
+  needs: string;
+  scaffolds: Scaffolds;
+};
+
 //End;

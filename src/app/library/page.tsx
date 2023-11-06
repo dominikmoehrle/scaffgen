@@ -7,27 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import supabase from "~/utils/supabaseClient";
 import PromptCard from "~/components/PromptCard";
-
-type Scaffold = {
-  id: string;
-  content: string;
-  status: "IGNORED" | "ACCEPTED" | "BAD";
-};
-
-type Scaffolds = {
-  warmups: Scaffold[];
-  choiceboards: Scaffold[];
-  misconceptions: Scaffold[];
-};
-
-type PromptData = {
-  id: string;
-  prompt_content: string;
-  objective: string;
-  grade: string;
-  needs: string;
-  scaffolds: Scaffolds;
-};
+import { type PromptData } from "~/utils/types";
 
 export default function Library() {
   const [data, setData] = useState<PromptData[] | null>(null);
@@ -71,6 +51,7 @@ export default function Library() {
             grade={prompt.grade}
             needs={prompt.needs}
             scaffolds={prompt.scaffolds}
+            id={prompt.id}
           />
         ))}
       </div>
