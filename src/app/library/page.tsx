@@ -8,10 +8,12 @@ import { createClient } from "@supabase/supabase-js";
 import supabase from "~/utils/supabaseClient";
 import PromptCard from "~/components/PromptCard";
 import { type PromptData } from "~/utils/types";
+import { useRouter } from "next/navigation";
 
 export default function Library() {
   const [data, setData] = useState<PromptData[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const fetchData = async () => {
     // Make sure params.id is not undefined
@@ -52,6 +54,7 @@ export default function Library() {
             needs={prompt.needs}
             scaffolds={prompt.scaffolds}
             id={prompt.id}
+            onClick={() => router.push(`/start/${prompt.id}`)}
           />
         ))}
       </div>

@@ -86,7 +86,7 @@ export default function Page({ params }: { params: { id: string } }) {
       <div>
         <strong>Warmups:</strong>
         <ul>
-          {data?.scaffolds.warmups.map((warmup) => (
+          {data?.scaffolds.warmups?.map((warmup) => (
             <li key={warmup.id}>{warmup.content}</li>
           ))}
         </ul>
@@ -94,7 +94,7 @@ export default function Page({ params }: { params: { id: string } }) {
       <div>
         <strong>Choiceboards:</strong>
         <ul>
-          {data?.scaffolds.choiceboards.map((choiceboard) => (
+          {data?.scaffolds.choiceboards?.map((choiceboard) => (
             <li key={choiceboard.id}>{choiceboard.content}</li>
           ))}
         </ul>
@@ -102,12 +102,11 @@ export default function Page({ params }: { params: { id: string } }) {
       <div>
         <strong>Misconceptions:</strong>
         <ul>
-          {data?.scaffolds.warmups.map((misconception) => (
+          {data?.scaffolds.misconceptions?.map((misconception) => (
             <li key={misconception.id}>{misconception.content}</li>
           ))}
         </ul>
       </div>
-      {/* Repeat for choiceboards and misconceptions */}
     </div>
   );
 }

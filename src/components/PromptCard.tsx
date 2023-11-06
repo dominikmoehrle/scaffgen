@@ -8,6 +8,7 @@ type PromptCardProps = {
   grade: string;
   needs: string;
   scaffolds: Scaffolds;
+  onClick: () => void;
 };
 
 const PromptCard: React.FC<PromptCardProps> = ({
@@ -16,9 +17,13 @@ const PromptCard: React.FC<PromptCardProps> = ({
   grade,
   needs,
   scaffolds,
+  onClick,
 }) => {
   return (
-    <div className="rounded-lg bg-white p-4 shadow-md">
+    <div
+      className="cursor-pointer rounded-lg bg-white p-4 shadow-md"
+      onClick={onClick}
+    >
       <h2 className="mb-2 text-xl font-bold">Lesson Objective: {objective}</h2>
       <p className="mb-2">
         <strong>Grade Level:</strong> {grade}
@@ -26,8 +31,6 @@ const PromptCard: React.FC<PromptCardProps> = ({
       <p className="mb-2">
         <strong>Special Needs:</strong> {needs}
       </p>
-      {/* Render the rest of your prompt data here */}
-      {/* ... */}
     </div>
   );
 };
