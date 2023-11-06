@@ -31,7 +31,7 @@ export async function getOpenAICompletion(
   };
 
   const GPTInstruction =
-    "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 rather extensive scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays containing each the three warmups, choiceboards and misconceptions. Make sure to format each of the 9 scaffolds well. For each scaffold go into detail what the exercise can be, what students learn through it and what the right approach is. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!";
+    "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 rather extensive scaffolds. Each scaffold is completely independent from the others and contains the entire exercise. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays containing each the three warmups, choiceboards and misconceptions. Make sure to format each of the 9 scaffolds well. For each scaffold, go into detail what the exercise is, the reasoning for why it fulfills the criteria, what students learn through it and what the right approach is. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!";
   const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
 
   const messages_body: Message[] = [
@@ -48,7 +48,7 @@ export async function getOpenAICompletion(
   // Call OpenAI API to generate scaffold contents
   const gptResponse = await openai.chat.completions.create({
     messages: messages_body,
-    model: "gpt-3.5-turbo",
+    model: "gpt-4-1106-preview",
   });
 
   console.log("Finished Running GPT");
