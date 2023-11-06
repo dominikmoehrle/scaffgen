@@ -41,6 +41,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "src/src/components/ui/popover.tsx";
+import { NextResponse } from "next/server";
 
 const gradeLevels = [
   {
@@ -100,12 +101,6 @@ type ComboboxDemoProps = {
 
 export function ComboboxDemo({ value, onChange }: ComboboxDemoProps) {
   const [open, setOpen] = React.useState(false);
-
-  console.log("value:", value);
-  console.log(
-    "found gradeLevel:",
-    gradeLevels.find((gradeLevel) => gradeLevel.value === value),
-  );
 
   gradeLevels.forEach((gradeLevel) => {
     if (gradeLevel.value === value) {
@@ -230,6 +225,7 @@ const Body = ({
         // Handle API errors.
         if (!response.ok || response.status !== 200) {
           const text = await response.text();
+          console.log(error);
           throw new Error(
             `Failed to generate lesson scaffolds: ${response.status}, ${text}`,
           );
@@ -248,6 +244,10 @@ const Body = ({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         router.push(`/start/${data.id}`);
       } catch (error) {
+        console.log("Error is:");
+        console.log(
+          error instanceof Error ? error.message : "Unexpected Error",
+        );
         if (error instanceof Error) {
           setError(error);
         }
