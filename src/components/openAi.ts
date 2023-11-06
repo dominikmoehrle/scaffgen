@@ -7,7 +7,7 @@ import type { Scaffold } from "~/utils/types";
 
 // Create a single supabase client for interacting with your database
 
-const openai = new OpenAI({ 
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY ?? "", // defaults to process.env["OPENAI_API_KEY"]
 });
 
@@ -26,14 +26,13 @@ export async function getOpenAICompletion(
   specialNeeds: string,
 ) {
   type Message = {
-    role: "system" | "user" | "assistant";
+    role: "system" | "user";
     content: string;
   };
 
   const GPTInstruction =
-    "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays that represent each scaffold type and are labelled as warmups, choiceboards and misconceptions. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!";
+    "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 rather extensive scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays containing each the three warmups, choiceboards and misconceptions. Make sure to format each of the 9 scaffolds well. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!";
   const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
-  const contentToStore = GPTInstruction + "\n" + userPrompt;
 
   const messages_body: Message[] = [
     {
@@ -43,6 +42,8 @@ export async function getOpenAICompletion(
   ];
 
   //
+
+  messages_body.push({ role: "user", content: userPrompt });
 
   // Call OpenAI API to generate scaffold contents
   const gptResponse = await openai.chat.completions.create({
@@ -67,14 +68,9 @@ export async function getOpenAICompletion(
 
   const promptID = nanoid();
 
-  messages_body.push({ role: "assistant", content: botMessage });
-
-  const scaff_prompt = userPrompt;
-  messages_body.push({ role: "user", content: scaff_prompt });
-
   const { error } = await supabase.from("Prompt").insert({
     id: promptID,
-    prompt_content: contentToStore,
+    prompt_content: GPTInstruction + "\n" + userPrompt,
     grade: gradeLevel,
     needs: specialNeeds,
     objective: lessonObjective,
@@ -93,10 +89,7 @@ export async function getOpenAICompletion(
   console.log("Data saved to Supabase and exiting...");
 
   // Prepare the response object with the ID
-  const response = {
+  return {
     id: promptID, // Provide the ID so the client can use it to fetch the data later
   };
-
-  // Return the response as JSON, including the ID
-  return response;
 }

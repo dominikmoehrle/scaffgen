@@ -12,7 +12,7 @@ export type QrCodeControlNetResponse = [string];
 export type Scaffold = {
   id: string;
   content: string;
-  status: "IGNORED" | "ACCEPTED" | "BAD";
+  status: "IGNORED" | "ACCEPTED" | "REJECTED" | "MODIFIED";
 };
 
 export type Scaffolds = {

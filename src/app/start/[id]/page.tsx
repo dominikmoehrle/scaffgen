@@ -1,56 +1,32 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { kv } from "@vercel/kv";
-
-import { createClient } from "@supabase/supabase-js";
-
+import ScaffoldComponent from "~/components/ScaffoldComponent";
 import supabase from "~/utils/supabaseClient";
-
-type Scaffold = {
-  id: string;
-  content: string;
-  status: "IGNORED" | "ACCEPTED" | "BAD";
-};
-
-type Scaffolds = {
-  warmups: Scaffold[];
-  choiceboards: Scaffold[];
-  misconceptions: Scaffold[];
-};
-
-type PromptData = {
-  id: string;
-  prompt_content: string;
-  objective: string;
-  grade: string;
-  needs: string;
-  scaffolds: Scaffolds;
-};
+import type { PromptData, Scaffolds, Scaffold } from "~/utils/types";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [data, setData] = useState<PromptData | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  const statusActions = {
+    accept: "ACCEPTED" as Scaffold["status"],
+    reject: "REJECTED" as Scaffold["status"],
+    modify: "MODIFIED" as Scaffold["status"],
+  };
 
   const fetchData = async () => {
     if (params.id) {
-      // Make sure params.id is not undefined
       try {
-        //const scaffoldData = await getAllKv(params.id);
-        const { data: fetchedData, error } = await supabase
+        const { data: fetchedData } = await supabase
           .from("Prompt")
           .select()
           .eq("id", params.id);
         if (fetchedData && fetchedData.length > 0) {
           setData(fetchedData[0] as PromptData);
-        } else {
-          // Handle no data found
         }
       } catch (error) {
         console.error("Error fetching scaffold data:", error);
         // Handle error
-      } finally {
-        setLoading(false);
       }
     }
   };
@@ -69,100 +45,136 @@ export default function Page({ params }: { params: { id: string } }) {
     );
   }
 
+  async function handleStatusChange(
+    scaffoldId: string,
+    status: Scaffold["status"],
+  ) {
+    if (!data) {
+      console.error("No data to update");
+      return;
+    }
+
+    // Update the scaffolds within the data state object
+    const updatedScaffolds: Scaffolds = {
+      warmups: data.scaffolds.warmups.map((scaffold) =>
+        scaffold.id === scaffoldId ? { ...scaffold, status } : scaffold,
+      ),
+      choiceboards: data.scaffolds.choiceboards.map((scaffold) =>
+        scaffold.id === scaffoldId ? { ...scaffold, status } : scaffold,
+      ),
+      misconceptions: data.scaffolds.misconceptions.map((scaffold) =>
+        scaffold.id === scaffoldId ? { ...scaffold, status } : scaffold,
+      ),
+    };
+
+    // Update the state with the new scaffolds data
+    setData((prevData) => {
+      if (prevData === null) return null;
+
+      return {
+        ...prevData,
+        scaffolds: updatedScaffolds,
+      };
+    });
+
+    // Attempt to update the database
+    const { error } = await supabase
+      .from("Prompt")
+      .update({ scaffolds: updatedScaffolds })
+      .match({ id: params.id });
+
+    if (error) {
+      console.error("Error updating scaffold status:", error.message);
+    }
+  }
+
   // Render your scaffold data here
   return (
     <div>
-      <h1>Scaffold Data</h1>
-      {/* Render your data here */}
-      <div>
-        <strong>Lesson Objective:</strong> {data.objective}
+      <div className="scaffold-overview-container">
+        <h1 className="scaffold-header">Scaffold Data</h1>
+        <div className="scaffold-detail">
+          <strong className="scaffold-detail-title">Lesson Objective:</strong>
+          <span className="scaffold-detail-content">{data.objective}</span>
+        </div>
+        <div className="scaffold-detail">
+          <strong className="scaffold-detail-title">Grade Level:</strong>
+          <span className="scaffold-detail-content">{data.grade}</span>
+        </div>
+        <div className="scaffold-detail">
+          <strong className="scaffold-detail-title">Special Needs:</strong>
+          <span className="scaffold-detail-content">{data.needs}</span>
+        </div>
       </div>
-      <div>
-        <strong>Grade Level:</strong> {data.grade}
-      </div>
-      <div>
-        <strong>Special Needs:</strong> {data.needs}
-      </div>
-      <div>
-        <strong>Warmups:</strong>
-        <ul>
-          {data?.scaffolds.warmups?.map((warmup) => (
-            <li key={warmup.id}>{warmup.content}</li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <strong>Choiceboards:</strong>
-        <ul>
-          {data?.scaffolds.choiceboards?.map((choiceboard) => (
-            <li key={choiceboard.id}>{choiceboard.content}</li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <strong>Misconceptions:</strong>
-        <ul>
-          {data?.scaffolds.misconceptions?.map((misconception) => (
-            <li key={misconception.id}>{misconception.content}</li>
-          ))}
-        </ul>
+
+      <div className="scaffold-grid-container">
+        <section>
+          <h2 className="scaffold-title">Warmups</h2>
+          <div className="scaffold-grid">
+            {data?.scaffolds.warmups?.map((warmup) => (
+              <ScaffoldComponent
+                key={warmup.id}
+                id={warmup.id}
+                status={warmup.status}
+                content={warmup.content}
+                onAccept={() =>
+                  handleStatusChange(warmup.id, statusActions.accept)
+                }
+                onReject={() =>
+                  handleStatusChange(warmup.id, statusActions.reject)
+                }
+                onModify={() =>
+                  handleStatusChange(warmup.id, statusActions.modify)
+                }
+              />
+            ))}
+          </div>
+        </section>
+        <section>
+          <h2 className="scaffold-title">Choiceboards</h2>
+          <div className="scaffold-grid">
+            {data?.scaffolds.choiceboards?.map((choiceboard) => (
+              <ScaffoldComponent
+                key={choiceboard.id}
+                id={choiceboard.id}
+                status={choiceboard.status}
+                content={choiceboard.content}
+                onAccept={() =>
+                  handleStatusChange(choiceboard.id, statusActions.accept)
+                }
+                onReject={() =>
+                  handleStatusChange(choiceboard.id, statusActions.reject)
+                }
+                onModify={() =>
+                  handleStatusChange(choiceboard.id, statusActions.modify)
+                }
+              />
+            ))}
+          </div>
+        </section>
+        <section>
+          <h2 className="scaffold-title">Misconceptions</h2>
+          <div className="scaffold-grid">
+            {data?.scaffolds.misconceptions?.map((misconception) => (
+              <ScaffoldComponent
+                key={misconception.id}
+                id={misconception.id}
+                content={misconception.content}
+                status={misconception.status}
+                onAccept={() =>
+                  handleStatusChange(misconception.id, statusActions.accept)
+                }
+                onReject={() =>
+                  handleStatusChange(misconception.id, statusActions.reject)
+                }
+                onModify={() =>
+                  handleStatusChange(misconception.id, statusActions.modify)
+                }
+              />
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
 }
-
-// export async function generateMetadata({
-//   params,
-// }: {
-//   params: {
-//     id: string;
-//   };
-// }): Promise<Metadata | undefined> {
-//   const data = await getAllKv(params.id);
-//   if (!data) {
-//     return;
-//   }
-
-//   const title = `QrGPT: ${data.prompt}`;
-//   const description = `A QR code generated from qrGPT.io linking to: ${data.website_url}`;
-//   const image = data.image || "https://qrGPT.io/og-image.png";
-
-//   return {
-//     title,
-//     description,
-//     openGraph: {
-//       title,
-//       description,
-//       images: [
-//         {
-//           url: image,
-//         },
-//       ],
-//     },
-//     twitter: {
-//       card: "summary_large_image",
-//       title,
-//       description,
-//       images: [image],
-//       creator: "@nutlope",
-//     },
-//   };
-// }
-
-// export default async function Results({
-//   params,
-// }: {
-//   params: {
-//     id: string;
-//   };
-// }) {
-//   const data = await getAllKv(params.id);
-//   if (!data) {
-//     notFound();
-//   }
-//   return (
-//     <div>
-//       Hello, world! {data.prompt} {data.image} {params.id}
-//     </div>
-//   );
-// }

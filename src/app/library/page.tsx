@@ -44,7 +44,7 @@ export default function Library() {
   // Render your scaffold data here
   return (
     <div className="container mx-auto p-4">
-      <h1>All Generated Scaffolds</h1>
+      <h1 className="mb-2 text-xl font-bold">All Generated Scaffolds</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {data?.map((prompt) => (
           <PromptCard
