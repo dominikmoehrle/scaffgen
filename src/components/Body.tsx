@@ -42,6 +42,7 @@ import {
   PopoverTrigger,
 } from "src/src/components/ui/popover.tsx";
 import { NextResponse } from "next/server";
+import { getOpenAICompletion } from "./openAi";
 
 const gradeLevels = [
   {
@@ -237,6 +238,12 @@ const Body = ({
         // va.track("Generated QR Code", {
         //   prompt: values.prompt,
         // });
+
+        // const data = await getOpenAICompletion(
+        //   values.lessonObjective,
+        //   values.gradeLevel,
+        //   values.specialNeeds,
+        // );
 
         console.log("Successfully sent it away");
         console.log("Object ID: " + data.id);
