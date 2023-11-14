@@ -53,33 +53,60 @@
 
 .scaffold-buttons {
   position: absolute;
-  z-index: 3; /* above the pseudo-element and content */
   display: flex; /* align buttons horizontally */
-  justify-content: center;
+  justify-content: start;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  flex-direction: row; /* Updated to align buttons horizontally */
-  align-items: center;
+  transform: translate(-70%, -50%);
+  flex-direction: column; /* Updated to align buttons horizontally */
+  align-items: start;
   gap: 8px;
   z-index: 10;
+  width: 150px;
+}
+
+.copy-paste-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  padding: 5px 20px;
+  border: 1px solid gray;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100px;
 }
 
 .scaffold-buttons button {
-  margin: 4px 0;
   padding: 8px 16px;
-  border: none;
+  /* border: none; */
   border-radius: 4px;
   cursor: pointer;
   transition:
     background-color 0.3s,
     transform 0.1s;
+  font-size: 0.9em;
 }
 
 .scaffold-buttons button:hover {
   background-color: rgb(15, 23, 42);
   color: white;
   transform: scale(1.1);
+}
+
+.scaffold-buttons-title {
+  text-align: center;
+  color: #000000;
+  font-weight: bold;
+  position: absolute;
+  display: flex; /* align buttons horizontally */
+  justify-content: center;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
 }
 
 .scaffold-overview-container {

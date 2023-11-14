@@ -6,12 +6,13 @@ import Footer from "@/components/Footer";
 //import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
+import { Toaster } from "src/src/components/ui/toaster";
 
-let title = "ScaffGen - AI Scaffold Generator";
-let description = "Generate your AI Scaffolds in seconds";
-let url = "https://www.qrgpt.io";
-let ogimage = "https://www.qrgpt.io/og-image.png";
-let sitename = "qrGPT.io";
+const title = "ScaffGen - AI Scaffold Generator";
+const description = "Generate your AI Scaffolds in seconds";
+const url = "https://www.qrgpt.io";
+const ogimage = "https://www.qrgpt.io/og-image.png";
+const sitename = "qrGPT.io";
 
 export const metadata: Metadata = {
   metadataBase: new URL(url),
@@ -49,6 +50,7 @@ export default function RootLayout({
         <main>{children}</main>
         {/* <Analytics /> */}
         <Footer />
+        <Toaster />
       </body>
     </html>
   );

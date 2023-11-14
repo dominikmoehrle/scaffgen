@@ -38,9 +38,12 @@ model Prompt {
 }
 
 model Scaffold {
-  id      String   @id @default(cuid())
-  content String
-  status  Status
+  id                String   @id @default(cuid())
+  content           String
+  status            Status
+  easeUseRatings     Int[]
+  engagementRatings  Int[]
+  alignmentRatings   Int[]
 }
 
 enum Status {

@@ -4,9 +4,10 @@
 import { NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { kv } from "@vercel/kv";
-import { nanoid } from "@/utils/utils";
+import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import supabase from "~/utils/supabaseClient";
+import { Scaffold } from "~/utils/types";
 
 // Create a single supabase client for interacting with your database
 
@@ -26,12 +27,6 @@ const validateRequest = (request: { text?: string }) => {
     throw new Error("URL is required");
   }
 };
-
-interface Scaffold {
-  id: string;
-  content: string;
-  status: "ignored" | "accepted" | "bad";
-}
 
 //LATER IDEA MEASURE HOW MUCH PROGRESS FROM PROMPT TO MODIFICATION PASSES
 
@@ -53,7 +48,10 @@ const createScaffoldsFromArray = (array: string[]): Scaffold[] => {
   return array.map((content) => ({
     id: nanoid(),
     content: content, //.trim()??
-    status: "ignored", // default status
+    status: "IGNORED", // default status
+    easeUseRating: 0, // default value
+    engagementRating: 0, // default value
+    alignmentRating: 0, // default value
   }));
 };
 
@@ -94,8 +92,11 @@ export async function POST(request: NextRequest) {
   //   }
   // }
 
-  const GPTInstruction =
-    "You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 scaffolds. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays that represent each scaffold type and are labelled as warmups, choiceboards and misconceptions. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. Thanks!";
+  const GPTInstruction = `You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 rather extensive scaffolds. Each scaffold is completely independent from the others and contains the entire exercise. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays containing each the three warmups, choiceboards and misconceptions. Make sure to format each of the 9 scaffolds well. For each scaffold, go into detail what the exercise is, the reasoning for why it fulfills the criteria, what students learn through it and what the right approach is. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. IT MUST HAVE THIS STRUCTURE: {
+    "warmups": ["warmup suggestion 1", "warmup suggestion 2", "warmup suggestion 3"],
+    "choiceboards": ["choiceboard suggestion 1", "choiceboard suggestion 2", "choiceboard suggestion 3"],
+    "misconceptions": ["misconception 1", "misconception 2", "misconception 3"]
+  }. So warmup suggestion 1 should include the entire scaffold for the warmup as a string. Thanks!";`;
   const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
   const contentToStore = GPTInstruction + "\n" + userPrompt;
 
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
   // Call OpenAI API to generate scaffold contents
   const gptResponse = await openai.chat.completions.create({
     messages: messages_body,
-    model: "gpt-3.5-turbo",
+    model: "gpt-4",
   });
 
   console.log("Finished Running GPT");

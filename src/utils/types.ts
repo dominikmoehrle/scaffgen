@@ -13,6 +13,9 @@ export type Scaffold = {
   id: string;
   content: string;
   status: "IGNORED" | "ACCEPTED" | "REJECTED" | "MODIFIED";
+  easeUseRatings: number[];
+  engagementRatings: number[];
+  alignmentRatings: number[];
 };
 
 export type Scaffolds = {
