@@ -1,5 +1,6 @@
 "use client";
 
+import { MathJaxContext } from "better-react-mathjax";
 import React, { useState, useEffect } from "react";
 import ScaffoldComponent from "~/components/ScaffoldComponent";
 import { redoScaffoldOpenAI } from "~/components/openAi";
@@ -25,6 +26,10 @@ export default function Page({ params }: { params: { id: string } }) {
         if (fetchedData && fetchedData.length > 0) {
           setData(fetchedData[0] as PromptData);
         }
+        console.log(
+          "Raw data from Supabase:",
+          data?.scaffolds.warmups[0]?.content,
+        );
       } catch (error) {
         console.error("Error fetching scaffold data:", error);
         // Handle error
@@ -130,99 +135,110 @@ export default function Page({ params }: { params: { id: string } }) {
     }
 
     setData({ ...data });
+    console.log("Data updated");
 
-    // Attempt to update the database
-    const { error } = await supabase
-      .from("Prompt")
-      .update({ scaffolds: data.scaffolds })
-      .match({ id: params.id });
+    try {
+      // Attempt to update the database
+      const { error } = await supabase
+        .from("Prompt")
+        .update({ scaffolds: data.scaffolds })
+        .match({ id: params.id });
 
-    if (error) {
-      console.error("Error updating scaffold status:", error.message);
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.error("Error updating scaffold status:", error.message || error);
     }
+
     if (callback) {
+      console.log("callback called");
       callback();
+    } else {
+      console.log("no callback found");
     }
   }
 
   // Render your scaffold data here
   return (
     <div>
-      <div className="scaffold-overview-container">
-        <h1 className="scaffold-header">Scaffold Data</h1>
-        <div className="scaffold-detail">
-          <strong className="scaffold-detail-title">Lesson Objective:</strong>
-          <span className="scaffold-detail-content">{data.objective}</span>
+      <MathJaxContext>
+        <div className="scaffold-overview-container">
+          <h1 className="scaffold-header">Scaffold Data</h1>
+          <div className="scaffold-detail">
+            <strong className="scaffold-detail-title">Lesson Objective:</strong>
+            <span className="scaffold-detail-content">{data.objective}</span>
+          </div>
+          <div className="scaffold-detail">
+            <strong className="scaffold-detail-title">Grade Level:</strong>
+            <span className="scaffold-detail-content">{data.grade}</span>
+          </div>
+          <div className="scaffold-detail">
+            <strong className="scaffold-detail-title">Special Needs:</strong>
+            <span className="scaffold-detail-content">{data.needs}</span>
+          </div>
         </div>
-        <div className="scaffold-detail">
-          <strong className="scaffold-detail-title">Grade Level:</strong>
-          <span className="scaffold-detail-content">{data.grade}</span>
-        </div>
-        <div className="scaffold-detail">
-          <strong className="scaffold-detail-title">Special Needs:</strong>
-          <span className="scaffold-detail-content">{data.needs}</span>
-        </div>
-      </div>
 
-      <div className="scaffold-grid-container">
-        <section>
-          <h2 className="scaffold-title">Warmups</h2>
-          <div className="scaffold-grid">
-            {data?.scaffolds.warmups?.map((warmup) => (
-              <ScaffoldComponent
-                key={warmup.id}
-                id={warmup.id}
-                category="warmups"
-                status={warmup.status}
-                content={warmup.content}
-                prompt={data}
-                easeUseRatings={warmup.easeUseRatings}
-                engagementRatings={warmup.engagementRatings}
-                alignmentRatings={warmup.alignmentRatings}
-                onRedo={() => handleRedo(warmup.id)}
-              />
-            ))}
-          </div>
-        </section>
-        <section>
-          <h2 className="scaffold-title">Choiceboards</h2>
-          <div className="scaffold-grid">
-            {data?.scaffolds.choiceboards?.map((choiceboard) => (
-              <ScaffoldComponent
-                key={choiceboard.id}
-                id={choiceboard.id}
-                category="choiceboards"
-                status={choiceboard.status}
-                content={choiceboard.content}
-                prompt={data}
-                easeUseRatings={choiceboard.easeUseRatings}
-                engagementRatings={choiceboard.engagementRatings}
-                alignmentRatings={choiceboard.alignmentRatings}
-                onRedo={() => handleRedo(choiceboard.id)}
-              />
-            ))}
-          </div>
-        </section>
-        <section>
-          <h2 className="scaffold-title">Misconceptions</h2>
-          <div className="scaffold-grid">
-            {data?.scaffolds.misconceptions?.map((misconception) => (
-              <ScaffoldComponent
-                key={misconception.id}
-                id={misconception.id}
-                category="misconceptions"
-                status={misconception.status}
-                content={misconception.content}
-                prompt={data}
-                easeUseRatings={misconception.easeUseRatings}
-                engagementRatings={misconception.engagementRatings}
-                alignmentRatings={misconception.alignmentRatings}
-                onRedo={() => handleRedo(misconception.id)}
-              />
-            ))}
-          </div>
-        </section>
-      </div>
+        <div className="scaffold-grid-container">
+          <section>
+            <h2 className="scaffold-title">Warmups</h2>
+            <div className="scaffold-grid">
+              {data?.scaffolds.warmups?.map((warmup) => (
+                <ScaffoldComponent
+                  key={warmup.id}
+                  id={warmup.id}
+                  category="warmups"
+                  status={warmup.status}
+                  content={warmup.content}
+                  prompt={data}
+                  easeUseRatings={warmup.easeUseRatings}
+                  engagementRatings={warmup.engagementRatings}
+                  alignmentRatings={warmup.alignmentRatings}
+                  onRedo={handleRedo}
+                />
+              ))}
+            </div>
+          </section>
+          <section>
+            <h2 className="scaffold-title">Choiceboards</h2>
+            <div className="scaffold-grid">
+              {data?.scaffolds.choiceboards?.map((choiceboard) => (
+                <ScaffoldComponent
+                  key={choiceboard.id}
+                  id={choiceboard.id}
+                  category="choiceboards"
+                  status={choiceboard.status}
+                  content={choiceboard.content}
+                  prompt={data}
+                  easeUseRatings={choiceboard.easeUseRatings}
+                  engagementRatings={choiceboard.engagementRatings}
+                  alignmentRatings={choiceboard.alignmentRatings}
+                  onRedo={handleRedo}
+                />
+              ))}
+            </div>
+          </section>
+          <section>
+            <h2 className="scaffold-title">Misconceptions</h2>
+            <div className="scaffold-grid">
+              {data?.scaffolds.misconceptions?.map((misconception) => (
+                <ScaffoldComponent
+                  key={misconception.id}
+                  id={misconception.id}
+                  category="misconceptions"
+                  status={misconception.status}
+                  content={misconception.content}
+                  prompt={data}
+                  easeUseRatings={misconception.easeUseRatings}
+                  engagementRatings={misconception.engagementRatings}
+                  alignmentRatings={misconception.alignmentRatings}
+                  onRedo={handleRedo}
+                />
+              ))}
+            </div>
+          </section>
+        </div>
+      </MathJaxContext>
     </div>
   );
 }

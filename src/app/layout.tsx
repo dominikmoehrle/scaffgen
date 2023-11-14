@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 import { Toaster } from "src/src/components/ui/toaster";
+import { MathJaxContext } from "better-react-mathjax";
 
 const title = "ScaffGen - AI Scaffold Generator";
 const description = "Generate your AI Scaffolds in seconds";
@@ -47,8 +48,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Navbar />
+
         <main>{children}</main>
         {/* <Analytics /> */}
+
         <Footer />
         <Toaster />
       </body>

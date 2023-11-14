@@ -22,6 +22,7 @@
   display: flex;
   justify-content: center;
   align-items: start;
+  min-height: 450px;
 }
 
 /* This pseudo-element covers the whole card and blurs the background */

@@ -33,8 +33,8 @@ export async function getOpenAICompletion(
         "warmups": ["warmup suggestion 1", "warmup suggestion 2", "warmup suggestion 3"],
         "choiceboards": ["choiceboard suggestion 1", "choiceboard suggestion 2", "choiceboard suggestion 3"],
         "misconceptions": ["misconception 1", "misconception 2", "misconception 3"]
-      }. So warmup suggestion 1 should include the entire scaffold for the warmup as a string. Thanks!";`;
-  const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}.`;
+      }. So warmup suggestion 1 should include the entire scaffold for the warmup as a string. You may include titles in each scaffold but do not add a generic overall title for each scaffold like "Warmup Exercise 1" or "Scaffold Name:...". It has to be individual. Also, please make sure to format each of these 9 scaffolds nicely in LATEX but only by adding new line chars and bold titles, so textbf. Do not use anything else. Thanks!";`;
+  const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}. `;
 
   const messages_body: Message[] = [
     {
@@ -123,20 +123,26 @@ export async function redoScaffoldOpenAI(
 
   messages_body.push({ role: "user", content: userPrompt });
 
-  console.log("Running GPT...");
-  console.log(messages_body);
+  try {
+    console.log("Running GPT...");
+    console.log(messages_body);
 
-  // Call OpenAI API to generate scaffold contents
-  const gptResponse = await openai.chat.completions.create({
-    messages: messages_body,
-    model: "gpt-4",
-  });
+    // Call OpenAI API to generate scaffold contents
+    const gptResponse = await openai.chat.completions.create({
+      messages: messages_body,
+      model: "gpt-4",
+    });
 
-  console.log("Finished Running GPT");
-  const botMessage = gptResponse.choices[0]?.message?.content ?? "";
+    console.log("Finished Running GPT");
+    const botMessage = gptResponse.choices[0]?.message?.content ?? "";
 
-  console.log(botMessage);
+    console.log(botMessage);
 
-  // Prepare the response object with the ID
-  return botMessage;
+    // Prepare the response object with the ID
+    return botMessage;
+  } catch (error) {
+    console.error("Error calling OpenAI:", error.message || error);
+    // Handle the error appropriately
+    // Depending on your application's structure, you might want to rethrow the error or return a default value
+  }
 }

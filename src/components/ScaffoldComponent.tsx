@@ -4,6 +4,8 @@ import { Button } from "src/src/components/ui/button";
 import supabase from "~/utils/supabaseClient";
 import { PromptData, Scaffold } from "~/utils/types";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { MathJax } from "better-react-mathjax";
+import parse from "html-react-parser";
 
 const Star = ({ selected, onSelect }) => (
   <span
@@ -18,6 +20,22 @@ const Star = ({ selected, onSelect }) => (
   </span>
 );
 
+const processContent = (latexContent: string) => {
+  let processedContent: string = latexContent;
+
+  // Replace \textbf{...} with <strong>...</strong>
+  processedContent = processedContent.replace(
+    /\\textbf\{([^}]+)\}/g,
+    "<strong>$1</strong>",
+  );
+
+  // Replace \n with <br/>
+  processedContent = processedContent.replace(/\\newline/g, "<br/>");
+  processedContent = processedContent.replace(/\\n/g, "<br/>");
+
+  return processedContent;
+};
+
 type ScaffoldComponentProps = {
   id: string;
   content: string;
@@ -27,7 +45,7 @@ type ScaffoldComponentProps = {
   prompt: PromptData;
   engagementRatings: number[];
   alignmentRatings: number[];
-  onRedo: (callback?: () => void) => void;
+  onRedo: (scaffoldId: string, callback?: () => void) => void;
 };
 
 const ScaffoldComponent = ({
@@ -172,7 +190,10 @@ const ScaffoldComponent = ({
                   toast({
                     title: "Creating a new Scaffold",
                   });
-                  onRedo(() => setIsLoading(false));
+                  onRedo(id, () => {
+                    console.log("Callback called");
+                    setIsLoading(false);
+                  });
                 }}
                 className="copy-paste-buttons"
               >
@@ -212,7 +233,10 @@ const ScaffoldComponent = ({
           </div>
         </div>
       )}
-      <p>{content}</p>
+      <MathJax>
+        {parse(processContent(content))}{" "}
+        {/* Use parse to convert HTML string to React components */}
+      </MathJax>
     </div>
   );
 };
