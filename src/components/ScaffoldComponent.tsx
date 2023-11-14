@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useToast } from "src/src/components/ui/use-toast";
 import { Button } from "src/src/components/ui/button";
 import supabase from "~/utils/supabaseClient";
-import { Scaffold } from "~/utils/types";
+import { PromptData, Scaffold } from "~/utils/types";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 const Star = ({ selected, onSelect }) => (
   <span
@@ -22,19 +23,26 @@ type ScaffoldComponentProps = {
   content: string;
   status: Scaffold["status"];
   easeUseRatings: number[];
+  category: string;
+  prompt: PromptData;
   engagementRatings: number[];
   alignmentRatings: number[];
+  onRedo: (callback?: () => void) => void;
 };
 
 const ScaffoldComponent = ({
   id,
   content,
   status,
+  category,
+  prompt,
   easeUseRatings,
   engagementRatings,
   alignmentRatings,
+  onRedo,
 }: ScaffoldComponentProps) => {
   const [hovered, setHovered] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [ratings, setRatings] = useState({});
   const { toast } = useToast();
 
@@ -49,15 +57,7 @@ const ScaffoldComponent = ({
     }
   };
 
-  const handleRedo = (id: string) => {
-    // Add your redo functionality here
-    toast({
-      title: "Creating a new Scaffold",
-    });
-  };
-
   const updateRatings = async (
-    scaffoldId: string,
     newRating: number,
     metric: "easeOfUse" | "engagement" | "alignment",
   ) => {
@@ -73,16 +73,45 @@ const ScaffoldComponent = ({
           alignmentRatings.push(newRating);
           break;
       }
-      const { data, error } = await supabase
+      console.log("wuhuuuuu");
+      console.log(prompt.scaffolds);
+      console.log("scaffold Id to update is " + id);
+      console.log("scaffold content to update is " + content);
+      console.log(
+        "scaffold category to update is " + prompt.scaffolds[category],
+      );
+      console.log("Ease UseRating is ");
+      console.log(easeUseRatings);
+      console.log("metric is : " + metric);
+
+      const updatedScaffold = {
+        ...prompt.scaffolds[category].find((s) => s.id === id),
+        easeUseRatings,
+        engagementRatings,
+        alignmentRatings,
+      };
+
+      // Update the specific category within scaffolds
+      const updatedCategoryScaffolds = prompt.scaffolds[category].map((s) =>
+        s.id === id ? updatedScaffold : s,
+      );
+
+      // Update the entire scaffolds object with the updated category
+      const updatedScaffolds = {
+        ...prompt.scaffolds,
+        [category]: updatedCategoryScaffolds,
+      };
+
+      console.log("Entire scaffolds category is updated");
+      console.log(updatedScaffolds);
+
+      const { error } = await supabase
         .from("Prompt")
-        .update({
-          easeUseRating: easeUseRatings,
-          engagementRating: engagementRatings,
-          alignmentRating: alignmentRatings,
-        })
-        .eq("id", scaffoldId);
+        .update({ scaffolds: updatedScaffolds })
+        .eq("id", prompt.id);
+
       if (error) throw error;
-      console.log("Updated Ratings:", data);
+      console.log("Updated Ratings:", updatedCategoryScaffolds);
     } catch (error) {
       console.error("Error updating ratings:", error);
     }
@@ -95,7 +124,9 @@ const ScaffoldComponent = ({
     const updatedRatings = { ...ratings, [metric]: newRating };
     setRatings(updatedRatings);
     console.log("Ratings set to ", updatedRatings[metric]);
-    await updateRatings(id, updatedRatings[metric], metric);
+
+    // Ensure correct types and order of arguments when calling updateRatings
+    await updateRatings(newRating, metric); // Assuming scaffoldId is available
   };
 
   const renderStars = (metric: "easeOfUse" | "engagement" | "alignment") => {
@@ -120,37 +151,68 @@ const ScaffoldComponent = ({
         backgroundColor: "white",
       }}
     >
-      <h3>Rate this Scaffold</h3>
-      <p>{content}</p>
-
       {hovered && (
-        <div className="scaffold-buttons">
-          <div style={{ marginBottom: "10px" }}>
-            <strong>Ease of Use:</strong> {renderStars("easeOfUse", id)}
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <strong>Student Engagement:</strong> {renderStars("engagement", id)}
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <strong>Lesson-Objective Alignment:</strong>{" "}
-            {renderStars("alignment", id)}
-          </div>
+        <div style={{ position: "absolute", marginTop: "16px" }}>
           <div style={{ display: "flex", flexDirection: "row" }}>
-            <button
+            <Button
               onClick={handleCopyToClipboard}
               className="copy-paste-buttons"
             >
               ✂️ Copy
-            </button>
-            <button
-              onClick={() => handleRedo(id)}
-              className="copy-paste-buttons"
+            </Button>
+            {isLoading ? (
+              <Button className="copy-paste-buttons" disabled>
+                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                Please wait
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  setIsLoading(true);
+                  toast({
+                    title: "Creating a new Scaffold",
+                  });
+                  onRedo(() => setIsLoading(false));
+                }}
+                className="copy-paste-buttons"
+              >
+                🔄 Redo
+              </Button>
+            )}
+          </div>
+          <div className="scaffold-buttons">
+            <h1
+              style={{
+                marginBottom: "20px",
+                marginTop: "20px",
+                fontSize: "30px",
+                fontWeight: "bold",
+                color: "#333",
+                textAlign: "center",
+              }}
             >
-              🔄 Redo
-            </button>
+              <strong>Rate this Scaffold</strong>
+            </h1>
+            <div style={{ marginBottom: "10px" }}>
+              <strong style={{ marginRight: "20px" }}>Ease of Use</strong>{" "}
+              {renderStars("easeOfUse")}
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+              <strong style={{ marginRight: "20px" }}>
+                Student Engagement
+              </strong>{" "}
+              {renderStars("engagement")}
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+              <strong style={{ marginRight: "20px" }}>
+                Lesson-Objective Alignment
+              </strong>{" "}
+              {renderStars("alignment")}
+            </div>
           </div>
         </div>
       )}
+      <p>{content}</p>
     </div>
   );
 };

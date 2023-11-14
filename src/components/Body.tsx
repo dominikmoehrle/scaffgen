@@ -206,39 +206,39 @@ const Body = ({
         console.log("Sending off the request now");
         // console.log(JSON.stringify(request));
 
-        const response = await fetch("/api/generate", {
-          method: "POST",
-          body: JSON.stringify({
-            lessonObjective: values.lessonObjective,
-            gradeLevel: values.gradeLevel,
-            specialNeeds: values.specialNeeds,
-          }),
-        });
+        // const response = await fetch("/api/generate", {
+        //   method: "POST",
+        //   body: JSON.stringify({
+        //     lessonObjective: values.lessonObjective,
+        //     gradeLevel: values.gradeLevel,
+        //     specialNeeds: values.specialNeeds,
+        //   }),
+        // });
 
         // Handle API errors.
-        if (!response.ok || response.status !== 200) {
-          const text = await response.text();
-          console.log(error);
-          throw new Error(
-            `Failed to generate lesson scaffolds: ${response.status}, ${text}`,
-          );
-        }
+        // if (!response.ok || response.status !== 200) {
+        //   const text = await response.text();
+        //   console.log(error);
+        //   throw new Error(
+        //     `Failed to generate lesson scaffolds: ${response.status}, ${text}`,
+        //   );
+        // }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const data = await response.json();
+        //const data = await response.json();
         // console.log(data);
         // va.track("Generated QR Code", {
         //   prompt: values.prompt,
         // });
 
-        // const data = await getOpenAICompletion(
-        //   values.lessonObjective,
-        //   values.gradeLevel,
-        //   values.specialNeeds,
-        // );
+        const data = await getOpenAICompletion(
+          values.lessonObjective,
+          values.gradeLevel,
+          values.specialNeeds,
+        );
 
         console.log("Successfully reived the data");
-        console.log("Data is: " + data);
+        console.log("Data is: " + data.id);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         router.push(`/start/${data.id}`);

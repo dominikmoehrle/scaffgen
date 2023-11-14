@@ -49,9 +49,9 @@ const createScaffoldsFromArray = (array: string[]): Scaffold[] => {
     id: nanoid(),
     content: content, //.trim()??
     status: "IGNORED", // default status
-    easeUseRating: 0, // default value
-    engagementRating: 0, // default value
-    alignmentRating: 0, // default value
+    easeUseRatings: [], // default value
+    engagementRatings: [], // default value
+    alignmentRatings: [], // default value
   }));
 };
 

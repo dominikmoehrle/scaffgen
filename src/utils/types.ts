@@ -1,14 +1,3 @@
-export type QrCodeControlNetRequest = {
-  url: string;
-  prompt: string;
-  qr_conditioning_scale?: number;
-  num_inference_steps?: number;
-  guidance_scale?: number;
-  negative_prompt?: string;
-};
-
-export type QrCodeControlNetResponse = [string];
-
 export type Scaffold = {
   id: string;
   content: string;
@@ -33,4 +22,7 @@ export type PromptData = {
   scaffolds: Scaffolds;
 };
 
-//End;
+export type Message = {
+  role: "system" | "user";
+  content: string;
+};

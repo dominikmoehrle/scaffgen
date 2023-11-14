@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import ScaffoldComponent from "~/components/ScaffoldComponent";
+import { redoScaffoldOpenAI } from "~/components/openAi";
 import supabase from "~/utils/supabaseClient";
 import type { PromptData, Scaffolds, Scaffold } from "~/utils/types";
 
@@ -88,6 +89,62 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   }
 
+  async function handleRedo(scaffoldId: string, callback?: () => void) {
+    if (!data) {
+      console.error("No data to update");
+      return;
+    }
+    const scaffold = [
+      ...data.scaffolds.warmups,
+      ...data.scaffolds.choiceboards,
+      ...data.scaffolds.misconceptions,
+    ].find((s) => s.id === scaffoldId);
+
+    if (!scaffold) {
+      console.error("Scaffold not found");
+      return;
+    }
+
+    // Get the scaffold category ('warmups', 'choiceboards', 'misconceptions')
+    const scaffoldCategory = Object.keys(data.scaffolds).find((category) =>
+      data.scaffolds[category].some((s) => s.id === scaffoldId),
+    );
+
+    const newContent = await redoScaffoldOpenAI(data, scaffold);
+    console.log("Fetch successful");
+
+    // Update the state with the new scaffolds data
+    if (scaffoldCategory) {
+      data.scaffolds[scaffoldCategory] = data.scaffolds[scaffoldCategory].map(
+        (s) =>
+          s.id === scaffoldId
+            ? {
+                ...s,
+                content: newContent,
+                easeUseRatings: [],
+                engagementRatings: [],
+                alignmentRatings: [],
+              }
+            : s,
+      );
+    }
+
+    setData({ ...data });
+
+    // Attempt to update the database
+    const { error } = await supabase
+      .from("Prompt")
+      .update({ scaffolds: data.scaffolds })
+      .match({ id: params.id });
+
+    if (error) {
+      console.error("Error updating scaffold status:", error.message);
+    }
+    if (callback) {
+      callback();
+    }
+  }
+
   // Render your scaffold data here
   return (
     <div>
@@ -115,17 +172,14 @@ export default function Page({ params }: { params: { id: string } }) {
               <ScaffoldComponent
                 key={warmup.id}
                 id={warmup.id}
+                category="warmups"
                 status={warmup.status}
                 content={warmup.content}
-                onAccept={() =>
-                  handleStatusChange(warmup.id, statusActions.accept)
-                }
-                onReject={() =>
-                  handleStatusChange(warmup.id, statusActions.reject)
-                }
-                onModify={() =>
-                  handleStatusChange(warmup.id, statusActions.modify)
-                }
+                prompt={data}
+                easeUseRatings={warmup.easeUseRatings}
+                engagementRatings={warmup.engagementRatings}
+                alignmentRatings={warmup.alignmentRatings}
+                onRedo={() => handleRedo(warmup.id)}
               />
             ))}
           </div>
@@ -137,17 +191,14 @@ export default function Page({ params }: { params: { id: string } }) {
               <ScaffoldComponent
                 key={choiceboard.id}
                 id={choiceboard.id}
+                category="choiceboards"
                 status={choiceboard.status}
                 content={choiceboard.content}
-                onAccept={() =>
-                  handleStatusChange(choiceboard.id, statusActions.accept)
-                }
-                onReject={() =>
-                  handleStatusChange(choiceboard.id, statusActions.reject)
-                }
-                onModify={() =>
-                  handleStatusChange(choiceboard.id, statusActions.modify)
-                }
+                prompt={data}
+                easeUseRatings={choiceboard.easeUseRatings}
+                engagementRatings={choiceboard.engagementRatings}
+                alignmentRatings={choiceboard.alignmentRatings}
+                onRedo={() => handleRedo(choiceboard.id)}
               />
             ))}
           </div>
@@ -159,17 +210,14 @@ export default function Page({ params }: { params: { id: string } }) {
               <ScaffoldComponent
                 key={misconception.id}
                 id={misconception.id}
-                content={misconception.content}
+                category="misconceptions"
                 status={misconception.status}
-                onAccept={() =>
-                  handleStatusChange(misconception.id, statusActions.accept)
-                }
-                onReject={() =>
-                  handleStatusChange(misconception.id, statusActions.reject)
-                }
-                onModify={() =>
-                  handleStatusChange(misconception.id, statusActions.modify)
-                }
+                content={misconception.content}
+                prompt={data}
+                easeUseRatings={misconception.easeUseRatings}
+                engagementRatings={misconception.engagementRatings}
+                alignmentRatings={misconception.alignmentRatings}
+                onRedo={() => handleRedo(misconception.id)}
               />
             ))}
           </div>
