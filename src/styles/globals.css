@@ -173,6 +173,13 @@
   margin-bottom: 40px;
 }
 
+@media (max-width: 768px) {
+  /* Adjust this value based on your design requirements */
+  .scaffold-grid {
+    grid-template-columns: 1fr; /* Stack items vertically on smaller screens */
+  }
+}
+
 .scaffold-grid-item {
   border: 1px solid #ddd;
   border-radius: 8px;
