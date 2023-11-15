@@ -21,14 +21,19 @@ const Star = ({ selected, onSelect }) => (
 );
 
 const processContent = (latexContent: string) => {
+  if (typeof latexContent !== "string") {
+    console.log();
+    console.error("Invalid content type:", typeof latexContent);
+    return ""; // or handle it in a way that suits your application
+  }
   let processedContent: string = latexContent;
-
+  console.log(processedContent);
   // Replace \textbf{...} with <strong>...</strong>
   processedContent = processedContent.replace(
-    /\\textbf\{([^}]+)\}/g,
+    /\\?textbf\{([^}]+)\}/g,
     "<strong>$1</strong>",
   );
-
+  console.log(processedContent);
   // Replace \n with <br/>
   processedContent = processedContent.replace(/\\newline/g, "<br/>");
   processedContent = processedContent.replace(/\\n/g, "<br/>");
