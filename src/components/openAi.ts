@@ -29,10 +29,10 @@ export async function getOpenAICompletion(
   gradeLevel: string,
   specialNeeds: string,
 ) {
-  const GPTInstruction = `You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 rather extensive scaffolds. Each scaffold is completely independent from the others and contains the entire exercise. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays containing each the three warmups, choiceboards and misconceptions. Make sure to format each of the 9 scaffolds well. For each scaffold, go into detail what the exercise is, the reasoning for why it fulfills the criteria, what students learn through it and what the right approach is. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS. IT MUST HAVE THIS STRUCTURE: {
-        "warmups": ["warmup suggestion 1", "warmup suggestion 2", "warmup suggestion 3"],
+  const GPTInstruction = `You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 rather extensive scaffolds. Each scaffold is completely independent from the others and contains the entire exercise. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays containing each the three warmups, choiceboards and misconceptions. Make sure to format each of the 9 scaffolds well. For each scaffold, go into detail what the exercise is, the reasoning for why it fulfills the criteria, what students learn through it and what the right approach is. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS in a JSON. IT MUST HAVE THIS STRUCTURE: {
+        {"warmups": ["warmup suggestion 1", "warmup suggestion 2", "warmup suggestion 3"],
         "choiceboards": ["choiceboard suggestion 1", "choiceboard suggestion 2", "choiceboard suggestion 3"],
-        "misconceptions": ["misconception 1", "misconception 2", "misconception 3"]
+        "misconceptions": ["misconception 1", "misconception 2", "misconception 3"]}
       }. So warmup suggestion 1 should include the entire scaffold for the warmup as a string. You may include titles in each scaffold but do not add a generic overall title for each scaffold like "Warmup Exercise 1" or "Scaffold Name:...". It has to be individual. Also, please make sure to format each of these 9 scaffolds nicely in LATEX but only by adding new line chars and bold titles, so textbf. Do not use anything else. Thanks!";`;
   const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}. `;
 
@@ -61,15 +61,24 @@ export async function getOpenAICompletion(
 
   console.log(botMessage);
 
-  // Parse the JSON response to get the scaffold contents
-  const scaffoldData = JSON.parse(botMessage) as {
-    warmups: string[];
-    choiceboards: string[];
-    misconceptions: string[];
-  };
-  const warmups = createScaffoldsFromArray(scaffoldData.warmups);
-  const choiceboards = createScaffoldsFromArray(scaffoldData.choiceboards);
-  const misconceptions = createScaffoldsFromArray(scaffoldData.misconceptions);
+  let warmups: Scaffold[] = [];
+  let choiceboards: Scaffold[] = [];
+  let misconceptions: Scaffold[] = [];
+
+  try {
+    // Parse the JSON response to get the scaffold contents
+    const scaffoldData = JSON.parse(botMessage) as {
+      warmups: string[];
+      choiceboards: string[];
+      misconceptions: string[];
+    };
+    warmups = createScaffoldsFromArray(scaffoldData.warmups);
+    choiceboards = createScaffoldsFromArray(scaffoldData.choiceboards);
+    misconceptions = createScaffoldsFromArray(scaffoldData.misconceptions);
+  } catch (error) {
+    console.error("Error parsing JSON:", (error as Error).message); // Handle the error appropriately
+    console.log(botMessage);
+  }
 
   const promptID = nanoid();
 
