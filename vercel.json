@@ -1,6 +1,6 @@
 {
   "functions": {
-    "/start": {
+    "start": {
       "maxDuration": 300
     },
     "app/start": {
