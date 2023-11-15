@@ -145,10 +145,12 @@ export default function Page({ params }: { params: { id: string } }) {
         .match({ id: params.id });
 
       if (error) {
-        throw new Error(error.message);
+        throw new Error(`Error updating scaffold status: ${error.message}`);
       }
     } catch (error) {
-      console.error("Error updating scaffold status:", error.message || error);
+      console.error(
+        `Error updating scaffold status: ${(error as Error).message}`,
+      );
     }
 
     if (callback) {

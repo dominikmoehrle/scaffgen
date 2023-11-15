@@ -141,7 +141,7 @@ export async function redoScaffoldOpenAI(
     // Prepare the response object with the ID
     return botMessage;
   } catch (error) {
-    console.error("Error calling OpenAI:", error.message || error);
+    console.error("Error calling OpenAI:", (error as Error).message); // Handle the error appropriately
     // Handle the error appropriately
     // Depending on your application's structure, you might want to rethrow the error or return a default value
   }
