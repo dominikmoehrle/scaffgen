@@ -26,3 +26,8 @@ export type Message = {
   role: "system" | "user";
   content: string;
 };
+
+export type ComboboxDemoProps = {
+  value: string;
+  onChange: (value: string) => void;
+};

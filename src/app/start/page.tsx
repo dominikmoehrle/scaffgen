@@ -1,4 +1,4 @@
-import Body from '@/components/Body';
+import Body from '~/components/LessonForm';
 
 export default function GeneratePage() {
   return <Body />;

@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import supabase from "~/utils/supabaseClient";
 import PromptCard from "~/components/PromptCard";
-import { type PromptData } from "~/utils/types";
+import { Scaffolds, type PromptData, Scaffold } from "~/utils/types";
 import { useRouter } from "next/navigation";
 
 export default function Library() {
@@ -41,6 +41,36 @@ export default function Library() {
     });
   }, []); // Depend on `id` so it re-runs when `id` changes
 
+  const calculateOverallAverageRatings = (scaffolds: Scaffolds) => {
+    const calculateAverage = (ratings: number[]) => {
+      if (ratings.length === 0) return 0;
+      return ratings.reduce((acc, curr) => acc + curr, 0) / ratings.length;
+    };
+
+    const allEaseUseRatings = [
+      ...scaffolds.warmups.flatMap((s) => s.easeUseRatings),
+      ...scaffolds.choiceboards.flatMap((s) => s.easeUseRatings),
+      ...scaffolds.misconceptions.flatMap((s) => s.easeUseRatings),
+    ];
+
+    const allEngagementRatings = [
+      ...scaffolds.warmups.flatMap((s) => s.engagementRatings),
+      ...scaffolds.choiceboards.flatMap((s) => s.engagementRatings),
+      ...scaffolds.misconceptions.flatMap((s) => s.engagementRatings),
+    ];
+
+    const allAlignmentRatings = [
+      ...scaffolds.warmups.flatMap((s) => s.alignmentRatings),
+      ...scaffolds.choiceboards.flatMap((s) => s.alignmentRatings),
+      ...scaffolds.misconceptions.flatMap((s) => s.alignmentRatings),
+    ];
+
+    return {
+      easeOfUse: calculateAverage(allEaseUseRatings),
+      engagement: calculateAverage(allEngagementRatings),
+      alignment: calculateAverage(allAlignmentRatings),
+    };
+  };
   // Render your scaffold data here
   return (
     <div className="container mx-auto p-4">
@@ -54,6 +84,15 @@ export default function Library() {
             needs={prompt.needs}
             scaffolds={prompt.scaffolds}
             id={prompt.id}
+            easeOfUse={
+              calculateOverallAverageRatings(prompt.scaffolds).easeOfUse
+            }
+            alignment={
+              calculateOverallAverageRatings(prompt.scaffolds).alignment
+            }
+            engagement={
+              calculateOverallAverageRatings(prompt.scaffolds).engagement
+            }
             onClick={() => router.push(`/start/${prompt.id}`)}
           />
         ))}
