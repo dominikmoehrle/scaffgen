@@ -22,22 +22,28 @@ const Star = ({ selected, onSelect }) => (
 
 const processContent = (latexContent: string) => {
   if (typeof latexContent !== "string") {
-    console.log();
     console.error("Invalid content type:", typeof latexContent);
-    return ""; // or handle it in a way that suits your application
+    return "";
   }
-  let processedContent: string = latexContent;
+  let processedContent = latexContent;
+  console.log("hereeee");
   console.log(processedContent);
-  // Replace \textbf{...} with <strong>...</strong>
+
   processedContent = processedContent.replace(
-    /\\?textbf\{([^}]+)\}/g,
+    /\\textbf\{([^}]+)\}/g,
     "<strong>$1</strong>",
   );
-  console.log(processedContent);
-  // Replace \n with <br/>
+
+  // Replace \textbf{...} with <strong>...</strong>
+  // The '\\s*' allows for any whitespace characters including newlines before \textbf
+  processedContent = processedContent.replace(
+    /\\?extbf\{([^}]+)\}/g,
+    "<strong>$1</strong>",
+  );
+
+  // Replace \n and \\newline with <br/>
   processedContent = processedContent.replace(/\\newline/g, "<br/>");
   processedContent = processedContent.replace(/\\n/g, "<br/>");
-
   return processedContent;
 };
 

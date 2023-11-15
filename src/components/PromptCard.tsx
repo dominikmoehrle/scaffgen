@@ -24,12 +24,12 @@ const PromptCard: React.FC<PromptCardProps> = ({
       className="cursor-pointer rounded-lg bg-white p-4 shadow-md"
       onClick={onClick}
     >
-      <h2 className="mb-2 text-xl font-bold">Lesson Objective: {objective}</h2>
+      <h2 className="mb-2 text-xl font-bold">
+        {objective} ({grade})
+      </h2>
+
       <p className="mb-2">
-        <strong>Grade Level:</strong> {grade}
-      </p>
-      <p className="mb-2">
-        <strong>Special Needs:</strong> {needs}
+        <strong></strong> {needs}
       </p>
     </div>
   );
