@@ -1,5 +1,11 @@
 {
   "functions": {
+    "/start": {
+      "maxDuration": 300
+    },
+    "app/start": {
+      "maxDuration": 300
+    },
     "app/start/**/*": {
       "maxDuration": 300
     },
