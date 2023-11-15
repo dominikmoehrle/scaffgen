@@ -1,16 +1,16 @@
 {
   "functions": {
-    "app/start": {
+    "src/app/start": {
       "maxDuration": 300
     },
-    "app/start/**/*": {
+    "src/app/start/**/*": {
       "maxDuration": 300
     },
     "src/app/api/generate/route.ts": {
       "memory": 3008,
       "maxDuration": 300
     },
-    "app/api/**/*": {
+    "src/app/api/**/*": {
       "maxDuration": 300
     }
   }
