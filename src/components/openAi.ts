@@ -29,55 +29,61 @@ export async function getOpenAICompletion(
   gradeLevel: string,
   specialNeeds: string,
 ) {
-  const GPTInstruction = `You are an expert teacher assistant. You help them create scaffolds for their algebra classes. Given an objective, grade level, and special needs, you will generate 9 rather extensive scaffolds. Each scaffold is completely independent from the others and contains the entire exercise. 3 that can be used as a warmup, 3 as a choiceboard, and 3 as misconception. ONLY return a JSON with three arrays containing each the three warmups, choiceboards and misconceptions. Make sure to format each of the 9 scaffolds well. For each scaffold, go into detail what the exercise is, the reasoning for why it fulfills the criteria, what students learn through it and what the right approach is. DO NOT RETURN ANY OTHER TEXT BESIDES THE ARRAYS in a JSON. IT MUST HAVE THIS STRUCTURE: {
-        {"warmups": ["warmup suggestion 1", "warmup suggestion 2", "warmup suggestion 3"],
-        "choiceboards": ["choiceboard suggestion 1", "choiceboard suggestion 2", "choiceboard suggestion 3"],
-        "misconceptions": ["misconception 1", "misconception 2", "misconception 3"]}
-      }. So warmup suggestion 1 should include the entire scaffold for the warmup as a string. You may include titles in each scaffold but do not add a generic overall title for each scaffold like "Warmup Exercise 1" or "Scaffold Name:...". It has to be individual. Also, please make sure to format each of these 9 scaffolds nicely in LATEX but only by adding new line chars and bold titles, so textbf. Do not use anything else. Thanks!";`;
+  const GPTInstruction = `You are an expert math teacher creating instructional scaffolds.`;
   const userPrompt = `The lesson objective is ${lessonObjective}, the grade level is ${gradeLevel}, and the special needs are ${specialNeeds}. `;
+  const userPromptWarmupOne = `Create a warmup math task for ${gradeLevel} students that activates and reviews their prior knowledge and skills. The learning objective for this lesson is ${lessonObjective}. Create a brief task (5-10 minutes) that allows students to explore and review these skills. The task should engage students in the content they will learn in todays lesson.`
+  const userPromptWarmupTwo = `Write a sentence about planes.`
+  const userPromptWarmupThree = `Write a sentence about cooking.`
 
-  const messages_body: Message[] = [
-    {
-      role: "system",
-      content: GPTInstruction,
-    },
-  ];
+  const WarmupPrompts = [userPromptWarmupOne, userPromptWarmupTwo, userPromptWarmupThree]
 
   //
+  let warmupOutputs: string[] = [];
 
-  messages_body.push({ role: "user", content: userPrompt });
+  for (var prompt in WarmupPrompts) {
 
-  console.log("Running GPT...");
-  console.log(messages_body);
+    const messages_body: Message[] = [
+      {
+        role: "system",
+        content: GPTInstruction,
+      },
+    ];
+    messages_body.push({ role: "user", content: WarmupPrompts[prompt]});
 
-  // Call OpenAI API to generate scaffold contents
-  const gptResponse = await openai.chat.completions.create({
-    messages: messages_body,
-    model: "gpt-4",
-  });
+    console.log("Running GPT...");
+    console.log(messages_body);
 
-  console.log("Finished Running GPT");
-  const botMessage = gptResponse.choices[0]?.message?.content ?? "";
+    // Call OpenAI API to generate scaffold contents
+    const gptResponse = await openai.chat.completions.create({
+      messages: messages_body,
+      model: "gpt-4",
+    });
 
-  console.log(botMessage);
+    console.log("Finished Running GPT");
+    const botMessage = gptResponse.choices[0]?.message?.content ?? "";
+
+    console.log(botMessage);
+    warmupOutputs.push(botMessage);
+  }
 
   let warmups: Scaffold[] = [];
-  let choiceboards: Scaffold[] = [];
-  let misconceptions: Scaffold[] = [];
+  //let choiceboards: Scaffold[] = [];
+  //let misconceptions: Scaffold[] = [];
+
 
   try {
     // Parse the JSON response to get the scaffold contents
-    const scaffoldData = JSON.parse(botMessage) as {
-      warmups: string[];
-      choiceboards: string[];
-      misconceptions: string[];
-    };
-    warmups = createScaffoldsFromArray(scaffoldData.warmups);
-    choiceboards = createScaffoldsFromArray(scaffoldData.choiceboards);
-    misconceptions = createScaffoldsFromArray(scaffoldData.misconceptions);
+    //const scaffoldData = JSON.parse(botMessage) as {
+      //warmups: string[];
+      //choiceboards: string[];
+      //misconceptions: string[];
+    //};
+    warmups = createScaffoldsFromArray(warmupOutputs);
+    //choiceboards = createScaffoldsFromArray(scaffoldData.choiceboards);
+    //misconceptions = createScaffoldsFromArray(scaffoldData.misconceptions);
   } catch (error) {
-    console.error("Error parsing JSON:", (error as Error).message); // Handle the error appropriately
-    console.log(botMessage);
+    console.error("Error"); // Handle the error appropriately
+    //console.log(botMessage);
   }
 
   const promptID = nanoid();
@@ -90,8 +96,8 @@ export async function getOpenAICompletion(
     objective: lessonObjective,
     scaffolds: {
       warmups: warmups,
-      choiceboards: choiceboards,
-      misconceptions: misconceptions,
+      //choiceboards: choiceboards,
+      //misconceptions: misconceptions,
     },
   });
 
@@ -155,3 +161,4 @@ export async function redoScaffoldOpenAI(
     // Depending on your application's structure, you might want to rethrow the error or return a default value
   }
 }
+
